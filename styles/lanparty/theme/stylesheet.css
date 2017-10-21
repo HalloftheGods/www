@@ -1,0 +1,718 @@
+/*  phpBB3 Style Sheet
+    --------------------------------------------------------------
+	Style name:			lanparty
+	Based on style:		subsilver2 (the default phpBB 3.0.x style)
+	Original author:	phpBB Group ( http://www.phpbb.com/ )
+	Modified by:		Cenk "Kyon" Aslan ( http://www.animoon.org/ )
+    --------------------------------------------------------------
+*/
+
+/* Layout
+ ------------ */
+* {
+	/* Reset browsers default margin, padding and font sizes */
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-size: 100%;
+}
+
+body {
+	/* Text-Sizing with ems: http://www.clagnut.com/blog/348/ */
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #D2D4D5;
+	background-color: #20262E;
+	font-size: 62.5%; /* This sets the default font size to be equivalent to 10px */
+	margin: 0;
+}
+
+#wrapheader {
+	height: auto !important;
+	padding: 0;
+}
+
+#wrapcentre {
+	margin: 15px 25px 0 25px;
+}
+
+#wrapfooter {
+	text-align: center;
+	clear: both;
+}
+
+#wrapnav {
+	width: 100%;
+	margin: 0;
+	background-color: #ECECEC;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #A9B8C2;
+}
+
+#logodesc {
+	margin-bottom: 5px;
+	background-color: #20262E;
+	padding: 5px 25px;
+}
+
+#menubar {
+	margin: 0 25px;
+}
+
+#menubar a:link { /* This line added by Kyon */
+    color: #778491;
+}
+
+#menubar a:visited { /* This line added by Kyon */
+	color: #778491;
+	text-decoration: none;
+}
+
+#menubar a:hover { /* This line added by Kyon */
+	color: #D2D4D5;
+	text-decoration: underline;
+}
+
+#datebar {
+	margin: 10px 25px 0 25px;
+}
+
+#findbar {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.forumrules {
+	background-color: #20262E;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #666666;
+	padding: 4px;
+	font-weight: normal;
+	font-size: 1.1em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.forumrules h3 {
+	color: #A5904C;
+}
+
+#pageheader { }
+#pagecontent { }
+#pagefooter { }
+
+#poll { }
+#postrow { }
+#postdata { }
+
+
+/*  Text
+ --------------------- */
+h1 {
+	color: #D2D4D5;
+	font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 22px;
+	text-decoration: none;
+}
+
+h2 {
+	font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 22px;
+	text-decoration: none;
+	line-height: 120%;
+}
+
+h3 {
+	font-size: 1.3em;
+	font-weight: bold;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	line-height: 120%;
+}
+
+h4 {
+	margin: 0;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+p {
+	font-size: 1.1em;
+}
+
+p.moderators {
+	margin: 0;
+	float: left;
+	color: #D2D4D5;
+	font-weight: bold;
+}
+
+.rtl p.moderators {
+	float: right;
+}
+
+p.linkmcp {
+	margin: 0;
+	float: right;
+	white-space: nowrap;
+}
+
+.rtl p.linkmcp {
+	float: left;
+}
+
+p.breadcrumbs {
+	margin: 0;
+	float: left;
+	color: #778491;
+	font-weight: bold;
+	white-space: normal;
+	font-size: 1em;
+}
+
+.rtl p.breadcrumbs {
+	float: right;
+}
+
+p.datetime {
+	margin: 0;
+	float: right;
+	white-space: nowrap;
+	font-size: 10px;
+}
+
+.rtl p.datetime {
+	float: left;
+}
+
+p.searchbar {
+	padding: 2px 0;
+	white-space: nowrap;
+} 
+
+p.searchbarreg {
+	margin: 0;
+	float: right;
+	white-space: nowrap;
+}
+
+.rtl p.searchbarreg {
+	float: left;
+}
+
+p.forumdesc {
+	padding-bottom: 4px;
+}
+
+p.topicauthor {
+	margin: 1px 0;
+}
+
+p.topicdetails {
+	margin: 1px 0;
+}
+
+.postreported, .postreported a:link, .postreported a:visited, .postreported a:hover, .postreported a:active {
+	margin: 1px 0;
+	color: red;
+	font-weight:bold;
+}
+
+.postapprove, .postapprove a:link, .postapprove a:visited, .postapprove a:hover, .postapprove a:active {
+	color: green;
+	font-weight:bold;
+}
+
+.postapprove img, .postreported img {
+	vertical-align: bottom;
+	padding-top: 5px;
+}
+
+.postauthor {
+	color: white;
+	font-size: 11px;
+}
+
+.postdetails {
+	color: #98A0AB;
+}
+
+.postbody {
+	font-size: 12px;
+	line-height: 1.4em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.postbody li, ol, ul {
+	margin: 0 0 0 1.5em;
+}
+
+.rtl .postbody li, .rtl ol, .rtl ul {
+	margin: 0 1.5em 0 0;
+}
+
+.posthilit {
+	background-color: yellow;
+}
+
+.nav {
+	margin: 0;
+	color: #A5904C;
+	font-weight: bold;
+}
+
+a:link.nav { /* This line added by Kyon */
+    color: #778491;
+	font-size: 12px;
+}
+
+.pagination {
+	padding: 4px;
+	color: #A5904C;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.cattitle {
+
+}
+
+.gen {
+	margin: 1px 1px;
+	font-size: 12px;
+}
+
+.genmed {
+	margin: 1px 1px;
+	font-size: 11px;
+}
+
+.gensmall {
+	margin: 1px 1px;
+	font-size: 10px;
+}
+
+.copyright {
+	color: #D2D4D5;
+	font-weight: normal;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.titles {
+	font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	font-size: 22px;
+	text-decoration: none;
+}
+
+.error {
+	color: red;
+}
+
+
+/* Tables
+ ------------ */
+th {
+	color: #CC990B;
+	font-size: 1.1em;
+	font-weight: bold;
+	background-color: #20262E;
+	background-image: url('./images/cellpic3.gif');
+	white-space: nowrap;
+	padding: 7px 5px;
+}
+
+td {
+	padding: 2px;
+}
+td.profile {
+	padding: 4px;
+}
+
+.tablebg {
+	background-color: black;
+}
+
+.catdiv {
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: #1F262E url('./images/cellpic2.jpg') repeat-y scroll top left;
+}
+.rtl .catdiv {
+	background: #1F262E url('./images/cellpic2_rtl.jpg') repeat-y scroll top right;
+}
+
+.cat {
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background-color: #20262E;
+	background-image: url('./images/cellpic1.gif');
+	text-indent: 4px;
+}
+
+.row1 {
+	background-color: #444C56;
+	padding: 4px;
+}
+
+.row2 {
+	background-color: #2C353F;
+	padding: 4px;
+}
+
+.row3 {
+	background-color: #38414A;
+	padding: 4px;
+}
+
+.spacer {
+	background-color: #20262E;
+}
+
+hr {
+	height: 1px;
+	border-width: 0;
+	background-color: #D1D7DC;
+	color: #D1D7DC;
+}
+
+.legend {
+	text-align:center;
+	margin: 0 auto;
+}
+
+/* Links
+ ------------ */
+
+/* Links adjustment to correctly display an order of rtl/ltr mixed content */
+.rtl a {
+	direction: rtl;
+	unicode-bidi: embed;
+}
+
+/* CSS spec requires a:link, a:visited, a:hover and a:active rules to be specified in this order. */
+/* See http://www.phpbb.com/bugs/phpbb3/59685 */
+a:link {
+	color: #A5904C;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #A5904C;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #D2D4D5;
+	text-decoration: underline;
+}
+
+a:active {
+	color: #A5904C;
+	text-decoration: none;
+}
+
+a.forumlink {
+	color: #B9B38D;
+	font-weight: bold;
+	/*font-family: "Lucida Grande", Helvetica, Arial, sans-serif;*/
+	font-size: 12px;
+}
+
+a.topictitle {
+	margin: 1px 0;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+a.topictitle:link { /* This line added by Kyon */
+    color: #D2D4D5;
+	margin: 1px 0;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+a.topictitle:visited {
+	color: #D2D4D5;
+	text-decoration: none;
+}
+
+th a,
+th a:visited {
+	color: #A5904C !important;
+	text-decoration: none;
+}
+
+th a:hover {
+	text-decoration: underline;
+}
+
+
+/* Form Elements
+ ------------ */
+form {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+input {
+	color: #D2D4D5;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	padding: 1px;
+	border: 1px solid #A9B8C2;
+	background-color: #20262E;
+}
+
+textarea {
+	background-color: #20262E;
+	color: #D2D4D5;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 1.3em; 
+	line-height: 1.4em;
+	font-weight: normal;
+	border: 1px solid #A9B8C2;
+	padding: 2px;
+}
+
+select {
+	color: #D2D4D5;
+	background-color: #20262E;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	border: 1px solid #A9B8C2;
+	padding: 1px;
+}
+
+option {
+	padding: 0 1em 0 0;
+}
+
+option.disabled-option {
+	color: graytext;
+}
+
+.rtl option {
+	padding: 0 0 0 1em;
+}
+
+input.radio {
+	border: none;
+	background-color: transparent;
+}
+
+.post {
+	background-color: #20262E;
+	border-style: solid;
+	border-width: 1px;
+	color: #D2D4D5; /* This line added by Kyon */
+}
+
+.btnbbcode {
+	color: #D2D4D5;
+	font-weight: normal;
+	font-size: 11px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #20262E;
+	border: 1px solid #666666;
+}
+
+.btnmain {
+	font-weight: bold;
+	background-color: #20262E;
+	border: 1px solid #A9B8C2;
+	cursor: pointer;
+	padding: 1px 5px;
+	font-size: 1.1em;
+}
+
+input.btnlite { /* This line added by Kyon */
+    color: #D2D4D5;
+	font-size: 12px;
+}
+
+input.btnmain { /* This line added by Kyon */
+    color: #D2D4D5;
+	font-size: 12px;
+}
+
+.btnlite {
+	font-weight: normal;
+	background-color: #444C56;
+	border: 1px solid #A9B8C2;
+	cursor: pointer;
+	padding: 1px 5px;
+	font-size: 1.1em;
+}
+
+.btnfile {
+	font-weight: normal;
+	background-color: #20262E;
+    color: #D2D4D5;
+	border: 1px solid #A9B8C2;
+	padding: 1px 5px;
+	font-size: 1.1em;
+}
+
+.helpline {
+	background-color: #20262E;
+	border-style: none;
+}
+
+
+/* BBCode
+ ------------ */
+.quotetitle, .attachtitle {
+	margin: 0px 5px 0 5px;
+	padding: 4px;
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #BFBFBF;
+	color: #FFFFFF;
+	background-color: #565E68;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.quotetitle .quotetitle {
+	font-size: 1em;
+}
+
+.quotecontent, .attachcontent {
+	margin: 0 5px 10px 5px;
+	padding: 5px;
+	border-color: #BFBFBF;
+	border-width: 0 1px 1px 1px;
+	border-style: solid;
+	font-weight: normal;
+	font-size: 10px;
+	line-height: 1.4em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #565E68;
+	color: #BABFC5;
+}
+
+.attachcontent {
+	font-size: 0.85em;
+}
+
+.codetitle {
+	margin: 10px 5px 0 5px;
+	padding: 2px 4px;
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #BFBFBF;
+	color: #8291A3;
+	background-color: #25364A;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.codecontent {
+	direction: ltr;
+	margin: 0 5px 10px 5px;
+	padding: 5px;
+	border-color: #BFBFBF;
+	border-width: 0 1px 1px 1px;
+	border-style: solid;
+	font-weight: normal;
+	color: #8291A3;
+	font-size: 12px;
+	font-family: Courier, 'Courier New', sans-serif;
+	background-color: #25364A;
+}
+
+.syntaxbg {
+	color: #FFFFFF;
+}
+
+.syntaxcomment {
+	color: #FF8000;
+}
+
+.syntaxdefault {
+	color: #0000BB;
+}
+
+.syntaxhtml {
+	color: #000000;
+}
+
+.syntaxkeyword {
+	color: #007700;
+}
+
+.syntaxstring {
+	color: #DD0000;
+}
+
+
+/* Private messages
+ ------------------ */
+.pm_marked_colour {
+	background-color: #000000;
+}
+
+.pm_replied_colour {
+	background-color: #A9B8C2;
+}
+
+.pm_friend_colour {
+	background-color: #007700;
+}
+
+.pm_foe_colour {
+	background-color: #DD0000;
+}
+
+
+/* Misc
+ ------------ */
+img {
+	border: none;
+}
+
+.sep {
+	color: black;
+	background-color: #FFA34F;
+}
+
+table.colortable td {
+	padding: 0;
+}
+
+pre {
+	font-size: 1.1em;
+	font-family: Monaco, 'Courier New', monospace;
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.username-coloured {
+	font-weight: bold;
+}
+
+a.subforum { /* This line added by Kyon */
+    color: #F9D55F;
+}
+
+p.forumdesc strong /* This line added by Kyon */
+{
+	font-size: 10px;
+}
