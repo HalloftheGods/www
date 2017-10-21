@@ -26,11 +26,11 @@
    (excluded for children)
 --------------------------------------------- */
 
-body.pbwow3 {
+body.pbhog {
 	background-attachment: scroll !important;
 }
 
-body.pbwow3 .logo {
+body.pbhog .logo {
 	background: url("./images/theme/logo.png") no-repeat;
 	background-size: 101%;
 	width: 300px;
@@ -39,30 +39,30 @@ body.pbwow3 .logo {
 	display: block;
 }
 
-body.pbwow3 #video-background {
+body.pbhog #video-background {
 	display: none;
 }
 
-body.pbwow3 #page-body:before {
+body.pbhog #page-body:before {
 	display: none;
 }
-body.pbwow3 #page-body {
+body.pbhog #page-body {
 	background-color: rgba(0,0,0,0.90);
 }
 
 @media only screen and (max-width: 999px), only screen and (max-device-width: 999px) {
-	body.pbwow3 {
+	body.pbhog {
 		background-image: url("./images/theme/wod-small.png");
 		background-position: 0 0;
 	}
 
-	body.pbwow3.topbar {
+	body.pbhog.topbar {
 		background-position: 0 41px;
 	}
 }
 
 @media screen and (max-width: 859px) {
-	body.pbwow3 #logo {
+	body.pbhog #logo {
 		width: 200px;
 		height: 100px;
 		margin: 0 0 25px 0;
@@ -70,7 +70,7 @@ body.pbwow3 #page-body {
 }
 
 @media screen and (max-width: 640px) {
-	body.pbwow3 #logo {
+	body.pbhog #logo {
 		display: none;
 	}
 }
