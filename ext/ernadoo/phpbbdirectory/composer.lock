@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6baf1427804c301e35d100f7bc4cd384",
+    "content-hash": "0f8afb7dd1a2f7ba577b8b90622bd20c",
     "packages": [
         {
             "name": "e1379/speaking-url",
@@ -27,26 +27,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "e1379/speaking-url",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/E1379/speaking-url",
-                "reference": "683848c87a26630eca1e5e3abee791b76118b705"
-            },
-            "require-dev": {
-                "phpspec/phpspec": "^3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "E1379\\SpeakingUrl\\": "src/"
-                }
-            },
-            "time": "2017-04-10T07:45:30+00:00"
-        },
-
         {
             "name": "guzzle/guzzle",
             "version": "v3.9.3",
@@ -545,16 +525,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.5.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "7c8fae0ac1d216eb54349e6a8baa57d515fe8803"
+                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/7c8fae0ac1d216eb54349e6a8baa57d515fe8803",
-                "reference": "7c8fae0ac1d216eb54349e6a8baa57d515fe8803",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296",
+                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296",
                 "shasum": ""
             },
             "require": {
@@ -566,7 +546,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5-dev"
+                    "dev-master": "1.6-dev"
                 }
             },
             "autoload": {
@@ -600,7 +580,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-06-14T15:44:48+00:00"
+            "time": "2017-10-11T12:05:26+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -715,7 +695,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4"
+        "php": ">=5.6"
     },
     "platform-dev": []
 }
