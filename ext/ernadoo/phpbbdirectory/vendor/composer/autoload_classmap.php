@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'E1379\\SpeakingUrl\\SpeakingUrl' => $vendorDir . '/e1379/speaking-url/src/SpeakingUrl.php',
 );
