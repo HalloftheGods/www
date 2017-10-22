@@ -384,6 +384,9 @@ ol.def-rules li {
 .gallery label {
 	background-color: #161616;
 }
+.gallery label img{
+max-width: 150px;
+}
 
 /* Responsive *CP navigation
 ----------------------------------------*/
