@@ -59,7 +59,7 @@ class add_cat_route_field extends \phpbb\db\migration\migration
 
 	public function rewrite_cat_name()
 	{
-		$slug = new \E1379\SpeakingUrl\SpeakingUrl();
+		$slug = new \e1379\SpeakingUrl\SpeakingUrl();
 
 		$sql = 'SELECT cat_id, cat_name FROM ' . $this->table_prefix . 'directory_cats';
 		$result = $this->db->sql_query($sql);

@@ -20,7 +20,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "E1379\\SpeakingUrl\\": "src/"
+                    "e1379\\speakingi-url\\": "src/"
                 }
             },
             "time": "2017-04-10 07:45:30"
