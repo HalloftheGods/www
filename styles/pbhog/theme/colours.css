@@ -318,7 +318,8 @@ table.info tbody th {
 }
 
 .forum-blocks dl:hover {
-    border-color: #C77E19;
+    /* border-color: #C77E19; */
+    border-color: #00a1ff;
 }
 
 .forum-blocks dl:hover .list-inner {

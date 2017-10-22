@@ -6,7 +6,9 @@ html {
 }
 
 body {
-    background: #000 url("./images/theme/hog-sun.jpg") no-repeat 49.999% 0;
+    background: #000 url("./images/theme/hog-galaxy.jpg") no-repeat 49.999% 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed !important;
     padding: 0;
     overflow-y: scroll;
 }

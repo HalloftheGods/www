@@ -27,7 +27,7 @@
 --------------------------------------------- */
 
 body.pbhog {
-	background-attachment: scroll !important;
+	/* background-attachment: scroll !important; */
 }
 
 body.pbhog .logo {
