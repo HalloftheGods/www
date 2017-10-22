@@ -387,6 +387,9 @@ ol.def-rules li {
 .gallery label img{
 max-width: 150px;
 }
+.gallery img{
+max-width: 150px;
+}
 
 /* Responsive *CP navigation
 ----------------------------------------*/
