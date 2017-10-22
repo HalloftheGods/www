@@ -19,10 +19,11 @@
 			"url": "https://github.com/E1379/speaking-url"
 		}
 	],
-	"require": {
-		"php": ">=5.4",
-		"E1379/speaking-url": "dev-master"
-	},
+  "autoload": {
+      "psr-4": {
+          "E1379\\SpeakingUrl\\": "src/"
+      }
+  },
 	"extra": {
 		"display-name": "phpBB Directory",
 		"soft-require": {
