@@ -10,22 +10,21 @@
 
 namespace ernadoo\phpbbdirectory\controller\acp;
 
-class main
+use \ernadoo\phpbbdirectory\core\helper;
+
+class main extends helper
 {
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
+
+	/** @var \phpbb\language\language */
+	protected $language;
 
 	/** @var \phpbb\request\request */
 	protected $request;
 
 	/** @var \phpbb\template\template */
 	protected $template;
-
-	/** @var \phpbb\user */
-	protected $user;
-
-	/** @var \ernadoo\phpbbdirectory\core\helper */
-	protected $dir_helper;
 
 	/** @var string Custom form action */
 	protected $u_action;
@@ -34,18 +33,16 @@ class main
 	* Constructor
 	*
 	* @param \phpbb\db\driver\driver_interface 		$db			Database object
+	* @param \phpbb\language\language				$language	Language object
 	* @param \phpbb\request\request					$request	Request object
 	* @param \phpbb\template\template				$template	Template object
-	* @param \phpbb\user							$user		User object
-	* @param \ernadoo\phpbbdirectory\core\helper	$dir_helper	PhpBB Directory extension helper object
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \ernadoo\phpbbdirectory\core\helper $dir_helper)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\language\language $language, \phpbb\request\request $request, \phpbb\template\template $template)
 	{
 		$this->db			= $db;
+		$this->language		= $language;
 		$this->template		= $template;
-		$this->user			= $user;
 		$this->request		= $request;
-		$this->dir_helper	= $dir_helper;
 	}
 
 	/**
@@ -84,7 +81,7 @@ class main
 
 		if ($confirm)
 		{
-			confirm_box(false, $this->user->lang[$confirm_lang], build_hidden_fields(array(
+			confirm_box(false, $this->language->lang($confirm_lang), build_hidden_fields(array(
 				'action'	=> $action,
 			)));
 		}
@@ -99,14 +96,14 @@ class main
 	{
 		// Count number of categories
 		$sql = 'SELECT COUNT(cat_id) AS nb_cats
-			FROM ' . DIR_CAT_TABLE;
+			FROM ' . $this->categories_table;
 		$result = $this->db->sql_query($sql);
 		$total_cats = (int) $this->db->sql_fetchfield('nb_cats');
 		$this->db->sql_freeresult($result);
 
 		// Cont number of links
 		$sql = 'SELECT link_id, link_active
-			FROM ' . DIR_LINK_TABLE;
+			FROM ' . $this->links_table;
 		$result = $this->db->sql_query($sql);
 		$total_links = $waiting_links = 0;
 		while ($row = $this->db->sql_fetchrow($result))
@@ -122,28 +119,28 @@ class main
 
 		// Comments number calculating
 		$sql = 'SELECT COUNT(comment_id) AS nb_comments
-			FROM ' . DIR_COMMENT_TABLE;
+			FROM ' . $this->comments_table;
 		$result = $this->db->sql_query($sql);
 		$total_comments = (int) $this->db->sql_fetchfield('nb_comments');
 		$this->db->sql_freeresult($result);
 
 		// Votes number calculating
 		$sql = 'SELECT COUNT(vote_id) AS nb_votes
-			FROM ' . DIR_VOTE_TABLE;
+			FROM ' . $this->votes_table;
 		$result = $this->db->sql_query($sql);
 		$total_votes = (int) $this->db->sql_fetchfield('nb_votes');
 		$this->db->sql_freeresult($result);
 
 		// Click number calculating
 		$sql = 'SELECT SUM(link_view) AS nb_clicks
-			FROM ' . DIR_LINK_TABLE;
+			FROM ' . $this->links_table;
 		$result = $this->db->sql_query($sql);
 		$total_clicks = (int) $this->db->sql_fetchfield('nb_clicks');
 		$this->db->sql_freeresult($result);
 
 		$banners_dir_size = 0;
 
-		$banners_path = $this->dir_helper->get_banner_path();
+		$banners_path = $this->get_banner_path();
 
 		if ($banners_dir = @opendir($banners_path))
 		{
@@ -161,7 +158,7 @@ class main
 		else
 		{
 			// Couldn't open banners dir.
-			$banners_dir_size = $this->user->lang['NOT_AVAILABLE'];
+			$banners_dir_size = $this->language->lang('NOT_AVAILABLE');
 		}
 
 		$total_orphan = $this->_orphan_files();
@@ -195,15 +192,15 @@ class main
 				{
 					case 'sqlite':
 					case 'firebird':
-						$this->db->sql_query('DELETE FROM ' . DIR_VOTE_TABLE);
+						$this->db->sql_query('DELETE FROM ' . $this->votes_table);
 					break;
 
 					default:
-						$this->db->sql_query('TRUNCATE TABLE ' . DIR_VOTE_TABLE);
+						$this->db->sql_query('TRUNCATE TABLE ' . $this->votes_table);
 					break;
 				}
 
-				$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+				$sql = 'UPDATE ' . $this->links_table . '
 					SET link_vote = 0, link_note = 0';
 				$this->db->sql_query($sql);
 
@@ -218,15 +215,15 @@ class main
 				{
 					case 'sqlite':
 					case 'firebird':
-						$this->db->sql_query('DELETE FROM ' . DIR_COMMENT_TABLE);
+						$this->db->sql_query('DELETE FROM ' . $this->comments_table);
 					break;
 
 					default:
-						$this->db->sql_query('TRUNCATE TABLE ' . DIR_COMMENT_TABLE);
+						$this->db->sql_query('TRUNCATE TABLE ' . $this->comments_table);
 					break;
 				}
 
-				$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+				$sql = 'UPDATE ' . $this->links_table . '
 					SET link_comment = 0';
 				$this->db->sql_query($sql);
 
@@ -238,7 +235,7 @@ class main
 				break;
 
 			case 'clicks':
-				$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+				$sql = 'UPDATE ' . $this->links_table . '
 					SET link_view = 0';
 				$this->db->sql_query($sql);
 
@@ -279,7 +276,7 @@ class main
 	*/
 	private function _orphan_files($delete = false)
 	{
-		$banner_path = $this->dir_helper->get_banner_path();
+		$banner_path = $this->get_banner_path();
 		$imglist = filelist($banner_path);
 		$physical_files = $logical_files = $orphan_files = array();
 
@@ -292,7 +289,7 @@ class main
 			{
 				$physical_files[] = $img;
 			}
-			$sql = 'SELECT link_banner FROM ' . DIR_LINK_TABLE . '
+			$sql = 'SELECT link_banner FROM ' . $this->links_table . '
 				WHERE link_banner <> \'\'';
 			$result = $this->db->sql_query($sql);
 
@@ -318,7 +315,7 @@ class main
 		{
 			if (in_array($file, $orphan_files))
 			{
-				@unlink($this->dir_helper->get_banner_path($file));
+				@unlink($this->get_banner_path($file));
 			}
 		}
 	}

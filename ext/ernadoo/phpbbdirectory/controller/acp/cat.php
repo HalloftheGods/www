@@ -10,7 +10,9 @@
 
 namespace ernadoo\phpbbdirectory\controller\acp;
 
-class cat
+use \ernadoo\phpbbdirectory\core\helper;
+
+class cat extends helper
 {
 	/** @var \phpbb\cache\service */
 	protected $cache;
@@ -20,6 +22,9 @@ class cat
 
 	/** @var \phpbb\controller\helper */
 	protected $helper;
+
+	/** @var \phpbb\language\language */
+	protected $language;
 
 	/** @var \phpbb\log\log */
 	protected $phpbb_log;
@@ -35,9 +40,6 @@ class cat
 
 	/** @var \ernadoo\phpbbdirectory\core\categorie */
 	protected $categorie;
-
-	/** @var \ernadoo\phpbbdirectory\core\helper */
-	protected $dir_helper;
 
 	/** @var \ernadoo\phpbbdirectory\core\nestedset_category */
 	protected $nestedset_category;
@@ -72,25 +74,25 @@ class cat
 	* @param \phpbb\cache\service								$cache				Cache object
 	* @param \phpbb\db\driver\driver_interface 					$db					Database object
 	* @param \phpbb\controller\helper							$helper				Helper object
+	* @param \phpbb\language\language							$language			Language object
 	* @param \phpbb\log\log										$log				Log object
 	* @param \phpbb\request\request								$request			Request object
 	* @param \phpbb\template\template							$template			Template object
 	* @param \phpbb\user										$user				User object
 	* @param \ernadoo\phpbbdirectory\core\categorie				$categorie			PhpBB Directory extension categorie object
-	* @param \ernadoo\phpbbdirectory\core\helper				$dir_helper			PhpBB Directory extension helper object
 	* @param \ernadoo\phpbbdirectory\core\nestedset_category	$nestedset_category	PhpBB Directory extension nestedset object
 	*/
-	public function __construct(\phpbb\cache\service $cache, \phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\log\log $log, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\helper $dir_helper, \ernadoo\phpbbdirectory\core\nestedset_category $nestedset_category)
+	public function __construct(\phpbb\cache\service $cache, \phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\language\language $language, \phpbb\log\log $log, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\nestedset_category $nestedset_category)
 	{
 		$this->cache				= $cache;
 		$this->db					= $db;
 		$this->helper				= $helper;
+		$this->language				= $language;
 		$this->phpbb_log			= $log;
 		$this->request				= $request;
 		$this->template				= $template;
 		$this->user					= $user;
 		$this->categorie			= $categorie;
-		$this->dir_helper			= $dir_helper;
 		$this->nestedset_category	= $nestedset_category;
 
 		$this->form_key = 'acp_dir_cat';
@@ -118,6 +120,7 @@ class cat
 			$this->cat_data = array(
 				'parent_id'				=> $this->parent_id,
 				'cat_name'				=> $this->request->variable('cat_name', '', true),
+				'cat_route'				=> '',
 				'cat_desc'				=> '',
 				'cat_icon'				=> '',
 				'cat_allow_comments'	=> true,
@@ -148,7 +151,7 @@ class cat
 	{
 		if (!$this->cat_id)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		$this->cat_data = $this->_get_cat_info($this->cat_id);
@@ -164,7 +167,7 @@ class cat
 		$cat_list = $this->categorie->make_cat_select((int) $this->cat_data['parent_id'], $subcats_id);
 
 		$sql = 'SELECT cat_id
-			FROM ' . DIR_CAT_TABLE . '
+			FROM ' . $this->categories_table . '
 			WHERE cat_id <> ' . (int) $this->cat_id;
 		$result = $this->db->sql_query_limit($sql, 1);
 
@@ -232,11 +235,11 @@ class cat
 	{
 		if (!$this->cat_id)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		$sql = 'SELECT cat_id, cat_name, parent_id, left_id, right_id
-			FROM ' . DIR_CAT_TABLE . '
+			FROM ' . $this->categories_table . '
 			WHERE cat_id = ' . (int) $this->cat_id;
 		$result = $this->db->sql_query($sql);
 		$row = $this->db->sql_fetchrow($result);
@@ -244,7 +247,7 @@ class cat
 
 		if (!$row)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		try
@@ -259,7 +262,7 @@ class cat
 		if ($move_cat_name !== false)
 		{
 			$this->phpbb_log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_DIR_CAT_' . strtoupper($this->action), time(), array($row['cat_name'], $move_cat_name));
-			$this->cache->destroy('sql', DIR_CAT_TABLE);
+			$this->cache->destroy('sql', $this->categories_table);
 		}
 
 		if ($this->request->is_ajax())
@@ -279,15 +282,15 @@ class cat
 		$start = $this->request->variable('start', 0);
 		$total = $this->request->variable('total', 0);
 
-		adm_page_header($this->user->lang['SYNC_IN_PROGRESS']);
+		adm_page_header($this->language->lang('SYNC_IN_PROGRESS'));
 
 		$this->template->set_filenames(array(
 			'body'	=> 'progress_bar.html')
 		);
 
 		$this->template->assign_vars(array(
-			'L_PROGRESS'			=> $this->user->lang['SYNC_IN_PROGRESS'],
-			'L_PROGRESS_EXPLAIN'	=> ($start && $total) ? $this->user->lang('SYNC_IN_PROGRESS_EXPLAIN', $start, $total) : $this->user->lang['SYNC_IN_PROGRESS'])
+			'L_PROGRESS'			=> $this->language->lang('SYNC_IN_PROGRESS'),
+			'L_PROGRESS_EXPLAIN'	=> ($start && $total) ? $this->language->lang('SYNC_IN_PROGRESS_EXPLAIN', $start, $total) : $this->language->lang('SYNC_IN_PROGRESS'))
 		);
 
 		adm_page_footer();
@@ -302,13 +305,13 @@ class cat
 	{
 		if (!$this->cat_id)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		@set_time_limit(0);
 
 		$sql = 'SELECT cat_name, cat_links
-			FROM ' . DIR_CAT_TABLE . '
+			FROM ' . $this->categories_table . '
 			WHERE cat_id = ' . (int) $this->cat_id;
 		$result = $this->db->sql_query($sql);
 		$row = $this->db->sql_fetchrow($result);
@@ -316,11 +319,11 @@ class cat
 
 		if (!$row)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		$sql = 'SELECT MIN(link_id) as min_link_id, MAX(link_id) as max_link_id
-			FROM ' . DIR_LINK_TABLE . '
+			FROM ' . $this->links_table . '
 			WHERE link_cat = ' . (int) $this->cat_id . '
 				AND link_active = 1';
 		$result = $this->db->sql_query($sql);
@@ -343,7 +346,7 @@ class cat
 		{
 			// We really need to find a way of showing statistics... no progress here
 			$sql = 'SELECT COUNT(link_id) as num_links
-				FROM ' . DIR_LINK_TABLE . '
+				FROM ' . $this->links_table . '
 				WHERE link_cat = ' . (int) $this->cat_id . '
 						AND link_active = 1
 						AND link_id BETWEEN ' . $start . ' AND ' . $end;
@@ -358,10 +361,9 @@ class cat
 			meta_refresh(0, $url);
 
 			$this->template->assign_vars(array(
-				'U_PROGRESS_BAR'		=> $this->u_action . "&amp;action=progress_bar&amp;start=$links_done&amp;total={$row['cat_links']}",
-				'UA_PROGRESS_BAR'		=> addslashes($this->u_action . "&amp;action=progress_bar&amp;start=$links_done&amp;total={$row['cat_links']}"),
+				'UA_PROGRESS_BAR'		=> $this->u_action . "&amp;action=progress_bar&amp;start=$links_done&amp;total={$row['cat_links']}",
 				'S_CONTINUE_SYNC'		=> true,
-				'L_PROGRESS_EXPLAIN'	=> $this->user->lang('SYNC_IN_PROGRESS_EXPLAIN', $links_done, $row['cat_links']))
+				'L_PROGRESS_EXPLAIN'	=> $this->language->lang('SYNC_IN_PROGRESS_EXPLAIN', $links_done, $row['cat_links']))
 			);
 
 			return;
@@ -371,10 +373,9 @@ class cat
 		meta_refresh(0, $url);
 
 		$this->template->assign_vars(array(
-			'U_PROGRESS_BAR'		=> $this->u_action . '&amp;action=progress_bar',
-			'UA_PROGRESS_BAR'		=> addslashes($this->u_action . '&amp;action=progress_bar'),
+			'UA_PROGRESS_BAR'		=> $this->u_action . '&amp;action=progress_bar',
 			'S_CONTINUE_SYNC'		=> true,
-			'L_PROGRESS_EXPLAIN'	=> $this->user->lang('SYNC_IN_PROGRESS_EXPLAIN', 0, $row['cat_links']))
+			'L_PROGRESS_EXPLAIN'	=> $this->language->lang('SYNC_IN_PROGRESS_EXPLAIN', 0, $row['cat_links']))
 		);
 
 		return;
@@ -388,7 +389,7 @@ class cat
 	public function action_sync_cat()
 	{
 		$sql = 'SELECT cat_name
-			FROM ' . DIR_CAT_TABLE . '
+			FROM ' . $this->categories_table . '
 			WHERE cat_id = ' . (int) $this->cat_id;
 		$result = $this->db->sql_query($sql);
 		$row = $this->db->sql_fetchrow($result);
@@ -396,15 +397,15 @@ class cat
 
 		if (!$row)
 		{
-			trigger_error($this->user->lang['DIR_NO_CAT'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
+			trigger_error($this->language->lang('DIR_NO_CAT') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 		}
 
 		$this->_sync_dir_cat($this->cat_id);
 
 		$this->phpbb_log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_DIR_CAT_SYNC', time(), array($row['cat_name']));
-		$this->cache->destroy('sql', DIR_CAT_TABLE);
+		$this->cache->destroy('sql', $this->categories_table);
 
-		$this->template->assign_var('L_DIR_CAT_RESYNCED', $this->user->lang('DIR_CAT_RESYNCED', $row['cat_name']));
+		$this->template->assign_var('L_DIR_CAT_RESYNCED', $this->language->lang('DIR_CAT_RESYNCED', $row['cat_name']));
 	}
 
 	/**
@@ -417,11 +418,11 @@ class cat
 		// Default management page
 		if (!$this->parent_id)
 		{
-			$navigation = $this->user->lang['DIR_INDEX'];
+			$navigation = $this->language->lang('DIR_INDEX');
 		}
 		else
 		{
-			$navigation = '<a href="' . $this->u_action . '">' . $this->user->lang['DIR_INDEX'] . '</a>';
+			$navigation = '<a href="' . $this->u_action . '">' . $this->language->lang('DIR_INDEX') . '</a>';
 
 			$cats_nav = $this->nestedset_category->get_path_data($this->parent_id);
 
@@ -447,7 +448,7 @@ class cat
 		}
 
 		$sql = 'SELECT cat_id, parent_id, right_id, left_id, cat_name, cat_icon, cat_desc_uid, cat_desc_bitfield, cat_desc, cat_desc_options, cat_links
-			FROM ' . DIR_CAT_TABLE . '
+			FROM ' . $this->categories_table . '
 			WHERE parent_id = ' . (int) $this->parent_id . '
 			ORDER BY left_id';
 		$result = $this->db->sql_query($sql);
@@ -456,13 +457,13 @@ class cat
 		{
 			do
 			{
-				$folder_image = ($row['left_id'] + 1 != $row['right_id']) ? '<img src="images/icon_subfolder.gif" alt="' . $this->user->lang['DIR_SUBCAT'] . '" />' : '<img src="images/icon_folder.gif" alt="' . $this->user->lang['FOLDER'] . '" />';
+				$folder_image = ($row['left_id'] + 1 != $row['right_id']) ? '<img src="images/icon_subfolder.gif" alt="' . $this->language->lang('DIR_SUBCAT') . '" />' : '<img src="images/icon_folder.gif" alt="' . $this->language->lang('FOLDER') . '" />';
 
 				$url = $this->u_action . "&amp;parent_id=$this->parent_id&amp;c={$row['cat_id']}";
 
 				$this->template->assign_block_vars('cats', array(
 					'FOLDER_IMAGE'		=> $folder_image,
-					'CAT_IMAGE'			=> ($row['cat_icon']) ? '<img src="' . $this->dir_helper->get_img_path('icons', $row['cat_icon']) . '" alt="" />' : '',
+					'CAT_IMAGE'			=> ($row['cat_icon']) ? '<img src="' . $this->get_img_path('icons', $row['cat_icon']) . '" alt="" />' : '',
 					'CAT_NAME'			=> $row['cat_name'],
 					'CAT_DESCRIPTION'	=> generate_text_for_display($row['cat_desc'], $row['cat_desc_uid'], $row['cat_desc_bitfield'], $row['cat_desc_options']),
 					'CAT_LINKS'			=> $row['cat_links'],
@@ -500,8 +501,7 @@ class cat
 			'U_SEL_ACTION'	=> $this->u_action,
 			'U_ACTION'		=> $this->u_action . '&amp;parent_id=' . $this->parent_id,
 
-			'U_PROGRESS_BAR'	=> $this->u_action . '&amp;action=progress_bar',
-			'UA_PROGRESS_BAR'	=> addslashes($this->u_action . '&amp;action=progress_bar'),
+			'UA_PROGRESS_BAR'	=> $this->u_action . '&amp;action=progress_bar',
 		));
 	}
 
@@ -527,7 +527,7 @@ class cat
 		if (!check_form_key($this->form_key))
 		{
 			$this->update = false;
-			$this->errors[] = $this->user->lang['FORM_INVALID'];
+			$this->errors[] = $this->language->lang('FORM_INVALID');
 		}
 
 		switch ($this->action)
@@ -552,9 +552,9 @@ class cat
 					break;
 				}
 
-				$this->cache->destroy('sql', DIR_CAT_TABLE);
+				$this->cache->destroy('sql', $this->categories_table);
 
-				trigger_error($this->user->lang['DIR_CAT_DELETED'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
+				trigger_error($this->language->lang('DIR_CAT_DELETED') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
 
 				break;
 
@@ -569,6 +569,7 @@ class cat
 					'parent_id'				=> $this->request->variable('cat_parent_id', (int) $this->parent_id),
 					'cat_parents'			=> '',
 					'cat_name'				=> $this->request->variable('cat_name', '', true),
+					'cat_route'				=> $this->request->variable('cat_route', ''),
 					'cat_desc'				=> $this->request->variable('cat_desc', '', true),
 					'cat_desc_uid'			=> '',
 					'cat_desc_options'		=> 7,
@@ -603,14 +604,54 @@ class cat
 
 				if (!sizeof($this->errors))
 				{
-					$this->cache->destroy('sql', DIR_CAT_TABLE);
+					$this->cache->destroy('sql', $this->categories_table);
 
-					$message = ($this->action == 'add') ? $this->user->lang['DIR_CAT_CREATED'] : $this->user->lang['DIR_CAT_UPDATED'];
+					$message = ($this->action == 'add') ? $this->language->lang('DIR_CAT_CREATED') : $this->language->lang('DIR_CAT_UPDATED');
 
 					trigger_error($message . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
 				}
 
 			break;
+		}
+
+		// Purge the cache to refresh route collections
+		$this->cache->purge();
+	}
+
+	/**
+	* Check route
+	*
+	* @param string $route Route text
+	* @return null
+	* @access public
+	* @throws \phpbb\pages\exception\unexpected_value
+	*/
+	private function _check_route($route)
+	{
+		// Route is a required field
+		if (empty($route))
+		{
+			$this->errors[] = $this->language->lang('DIR_CAT_ROUTE_EMPTY');
+			return;
+		}
+
+		// Route should not contain any unexpected special characters
+		if (!preg_match('/^[^!"#$%&*\'()+,.\/\\\\:;<=>?@\\[\\]^`{|}~ ]*$/', $route))
+		{
+			$this->errors[] = $this->language->lang('DIR_CAT_ROUTE_ILLEGAL_CHARACTERS');
+		}
+
+		$sql = 'SELECT cat_route
+			FROM ' . $this->categories_table  . "
+			WHERE cat_route = '" . $this->db->sql_escape($route) . "'
+				AND cat_id <> " . $this->cat_id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if ($row)
+		{
+			$this->errors[] = $this->language->lang('DIR_CAT_ROUTE_NOT_UNIQUE');
 		}
 	}
 
@@ -655,12 +696,13 @@ class cat
 			'U_BACK'			=> $this->u_action . '&amp;parent_id=' . $this->parent_id,
 			'U_EDIT_ACTION'		=> $this->u_action . "&amp;parent_id={$this->parent_id}&amp;action=$this->action&amp;c=$this->cat_id",
 
-			'L_TITLE'					=> $this->user->lang['DIR_' . strtoupper($this->action) . '_CAT'],
+			'L_TITLE'					=> $this->language->lang('DIR_' . strtoupper($this->action) . '_CAT'),
 			'ERROR_MSG'					=> (sizeof($this->errors)) ? implode('<br />', $this->errors) : '',
-			'ICON_IMAGE'				=> ($this->cat_data['cat_icon']) ? $this->dir_helper->get_img_path('icons', $this->cat_data['cat_icon']) : 'images/spacer.gif',
+			'ICON_IMAGE'				=> ($this->cat_data['cat_icon']) ? $this->get_img_path('icons', $this->cat_data['cat_icon']) : 'images/spacer.gif',
 
-			'DIR_ICON_PATH'				=> $this->dir_helper->get_img_path('icons'),
+			'DIR_ICON_PATH'				=> $this->get_img_path('icons'),
 			'DIR_CAT_NAME'				=> $this->cat_data['cat_name'],
+			'DIR_CAT_ROUTE'				=> $this->cat_data['cat_route'],
 			'DIR_CAT_DESC'				=> $dir_cat_desc_data['text'],
 
 			'S_DESC_BBCODE_CHECKED'		=> ($dir_cat_desc_data['allow_bbcode']) ? true : false,
@@ -668,7 +710,7 @@ class cat
 			'S_DESC_URLS_CHECKED'		=> ($dir_cat_desc_data['allow_urls']) ? true : false,
 			'S_DISPLAY_SUBCAT_LIST'		=> ($this->cat_data['display_subcat_list']) ? true : false,
 			'S_PARENT_OPTIONS'			=> $parents_list,
-			'S_ICON_OPTIONS'			=> $this->_get_dir_icon_list($this->dir_helper->get_img_path('icons'), $this->cat_data['cat_icon']),
+			'S_ICON_OPTIONS'			=> $this->_get_dir_icon_list($this->get_img_path('icons'), $this->cat_data['cat_icon']),
 			'S_ALLOW_COMMENTS'			=> ($this->cat_data['cat_allow_comments']) ? true : false,
 			'S_ALLOW_VOTES'				=> ($this->cat_data['cat_allow_votes']) ? true : false,
 			'S_MUST_DESCRIBE'			=> ($this->cat_data['cat_must_describe']) ? true : false,
@@ -682,7 +724,8 @@ class cat
 			'S_LINK_BACK'				=> ($this->cat_data['cat_link_back']) ? true : false,
 			'S_CRON_ENABLE'				=> ($this->cat_data['cat_cron_enable']) ? true : false,
 
-			'U_DATE'					=> $this->helper->route('ernadoo_phpbbdirectory_ajax_controller')
+			'U_DATE'					=> $this->helper->route('ernadoo_phpbbdirectory_ajax_date_controller'),
+			'U_SLUG'					=> $this->helper->route('ernadoo_phpbbdirectory_ajax_slug_controller'),
 		));
 
 		return;
@@ -696,8 +739,8 @@ class cat
 	*/
 	private function _get_cat_info($cat_id)
 	{
-		$sql = 'SELECT cat_id, parent_id, right_id, left_id, cat_desc, cat_desc_uid, cat_desc_options, cat_icon, cat_name, display_subcat_list, cat_allow_comments, cat_allow_votes, cat_must_describe, cat_count_all, cat_validate, cat_cron_freq, cat_cron_nb_check, cat_link_back, cat_cron_enable, cat_cron_next
-			FROM ' . DIR_CAT_TABLE . '
+		$sql = 'SELECT cat_id, parent_id, right_id, left_id, cat_desc, cat_desc_uid, cat_desc_options, cat_icon, cat_name, cat_route, display_subcat_list, cat_allow_comments, cat_allow_votes, cat_must_describe, cat_count_all, cat_validate, cat_cron_freq, cat_cron_nb_check, cat_link_back, cat_cron_enable, cat_cron_next
+			FROM ' . $this->categories_table . '
 			WHERE cat_id = ' . (int) $cat_id;
 		$result = $this->db->sql_query($sql);
 		$row = $this->db->sql_fetchrow($result);
@@ -720,17 +763,19 @@ class cat
 	{
 		if (!$this->cat_data['cat_name'])
 		{
-			$this->errors[] = $this->user->lang['DIR_CAT_NAME_EMPTY'];
+			$this->errors[] = $this->language->lang('DIR_CAT_NAME_EMPTY');
 		}
+
+		$this->_check_route($this->cat_data['cat_route']);
 
 		if (utf8_strlen($this->cat_data['cat_desc']) > 4000)
 		{
-			$this->errors[] = $this->user->lang['DIR_CAT_DESC_TOO_LONG'];
+			$this->errors[] = $this->language->lang('DIR_CAT_DESC_TOO_LONG');
 		}
 
 		if (($this->cat_data['cat_cron_enable'] && $this->cat_data['cat_cron_freq'] <= 0) || $this->cat_data['cat_cron_nb_check'] < 0)
 		{
-			$this->errors[] = $this->user->lang['DIR_CAT_DATA_NEGATIVE'];
+			$this->errors[] = $this->language->lang('DIR_CAT_DATA_NEGATIVE');
 		}
 
 		// Unset data that are not database fields
@@ -789,7 +834,7 @@ class cat
 			if ($row['cat_name'] != $cat_data_sql['cat_name'])
 			{
 				// the cat name has changed, clear the parents list of all categories (for safety)
-				$sql = 'UPDATE ' . DIR_CAT_TABLE . "
+				$sql = 'UPDATE ' . $this->categories_table . "
 					SET cat_parents = ''";
 				$this->db->sql_query($sql);
 			}
@@ -797,7 +842,7 @@ class cat
 			// Setting the cat id to the categorie id is not really received well by some dbs. ;)
 			unset($cat_data_sql['cat_id']);
 
-			$sql = 'UPDATE ' . DIR_CAT_TABLE . '
+			$sql = 'UPDATE ' . $this->categories_table . '
 				SET ' . $this->db->sql_build_array('UPDATE', $cat_data_sql) . '
 				WHERE cat_id = ' . (int) $this->cat_id;
 			$this->db->sql_query($sql);
@@ -832,14 +877,14 @@ class cat
 		{
 			if (!$links_to_id)
 			{
-				$this->errors[] = $this->user->lang['DIR_NO_DESTINATION_CAT'];
+				$this->errors[] = $this->language->lang('DIR_NO_DESTINATION_CAT');
 			}
 			else
 			{
 				$log_action_links = 'MOVE_LINKS';
 
 				$sql = 'SELECT cat_name
-					FROM ' . DIR_CAT_TABLE . '
+					FROM ' . $this->categories_table . '
 					WHERE cat_id = ' . (int) $links_to_id;
 				$result = $this->db->sql_query($sql);
 				$row = $this->db->sql_fetchrow($result);
@@ -870,7 +915,7 @@ class cat
 		{
 			if (!$subcats_to_id)
 			{
-				$this->errors[] = $this->user->lang['DIR_NO_DESTINATION_CAT'];
+				$this->errors[] = $this->language->lang('DIR_NO_DESTINATION_CAT');
 			}
 			else
 			{
@@ -941,12 +986,12 @@ class cat
 	*/
 	private function _move_cat_content($from_id, $to_id)
 	{
-		$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+		$sql = 'UPDATE ' . $this->links_table . '
 			SET link_cat = ' . (int) $to_id . '
 			WHERE link_cat = ' . (int) $from_id;
 		$this->db->sql_query($sql);
 
-		$sql = 'DELETE FROM ' . DIR_WATCH_TABLE . '
+		$sql = 'DELETE FROM ' . $this->watch_table . '
 			WHERE cat_id = ' . (int) $from_id;
 		$this->db->sql_query($sql);
 
@@ -964,7 +1009,7 @@ class cat
 
 		// Before we remove anything we make sure we are able to adjust the post counts later. ;)
 		$sql = 'SELECT link_id, link_banner
-			FROM ' . DIR_LINK_TABLE . '
+			FROM ' . $this->links_table . '
 			WHERE link_cat = ' . (int) $this->cat_id;
 		$result = $this->db->sql_query($sql);
 
@@ -975,7 +1020,7 @@ class cat
 
 			if ($row['link_banner'] && !preg_match('/^(http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|www\.).+/si', $row['link_banner']))
 			{
-				$banner_img = $this->dir_helper->get_banner_path(basename($row['link_banner']));
+				$banner_img = $this->get_banner_path(basename($row['link_banner']));
 
 				if (file_exists($banner_img))
 				{
@@ -989,8 +1034,8 @@ class cat
 		{
 			// Delete links datas
 			$link_datas_ary = array(
-				DIR_COMMENT_TABLE	=> 'comment_link_id',
-				DIR_VOTE_TABLE		=> 'vote_link_id',
+				$this->comments_table	=> 'comment_link_id',
+				$this->votes_table		=> 'vote_link_id',
 			);
 
 			foreach ($link_datas_ary as $table => $field)
@@ -1001,8 +1046,8 @@ class cat
 
 		// Delete cats datas
 		$cat_datas_ary = array(
-			DIR_LINK_TABLE	=> 'link_cat',
-			DIR_WATCH_TABLE	=> 'cat_id',
+			$this->links_table	=> 'link_cat',
+			$this->watch_table	=> 'cat_id',
 		);
 
 		foreach ($cat_datas_ary as $table => $field)
@@ -1024,14 +1069,14 @@ class cat
 	private function _sync_dir_cat($cat_id)
 	{
 		$sql = 'SELECT COUNT(link_id) AS num_links
-			FROM ' . DIR_LINK_TABLE . '
+			FROM ' . $this->links_table . '
 			WHERE link_cat = ' . (int) $cat_id . '
 				AND link_active = 1';
 		$result = $this->db->sql_query($sql);
 		$total_links = (int) $this->db->sql_fetchfield('num_links');
 		$this->db->sql_freeresult($result);
 
-		$sql = 'UPDATE ' . DIR_CAT_TABLE . '
+		$sql = 'UPDATE ' . $this->categories_table . '
 			SET cat_links = ' . $total_links . '
 			WHERE cat_id = ' . (int) $cat_id;
 		$this->db->sql_query($sql);
@@ -1052,18 +1097,18 @@ class cat
 			'link_vote'		=> 0,
 		);
 
-		$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+		$sql = 'UPDATE ' . $this->links_table . '
 			SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 			WHERE link_id BETWEEN ' . (int) $start . ' AND ' . (int) $stop;
 		$this->db->sql_query($sql);
 
-		$sql = 'SELECT vote_link_id, COUNT(vote_note) AS nb_vote, SUM(vote_note) AS total FROM ' . DIR_VOTE_TABLE . '
+		$sql = 'SELECT vote_link_id, COUNT(vote_note) AS nb_vote, SUM(vote_note) AS total FROM ' . $this->votes_table . '
 			WHERE vote_link_id BETWEEN ' . (int) $start . ' AND ' . (int) $stop . '
 			GROUP BY vote_link_id';
 		$result = $this->db->sql_query($sql);
 		while ($tmp = $this->db->sql_fetchrow($result))
 		{
-			$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+			$sql = 'UPDATE ' . $this->links_table . '
 				SET link_note = ' . (int) $tmp['total'] . ', link_vote = ' . (int) $tmp['nb_vote'] . '
 				WHERE link_id = ' . (int) $tmp['vote_link_id'];
 			$this->db->sql_query($sql);
@@ -1071,13 +1116,13 @@ class cat
 		$this->db->sql_freeresult($result);
 
 		$sql = 'SELECT 	comment_link_id, COUNT(comment_id) AS nb_comment
-			FROM ' . DIR_COMMENT_TABLE . '
+			FROM ' . $this->comments_table . '
 			WHERE comment_link_id BETWEEN ' . (int) $start . ' AND ' . (int) $stop . '
 			GROUP BY comment_link_id';
 		$result = $this->db->sql_query($sql);
 		while ($tmp = $this->db->sql_fetchrow($result))
 		{
-			$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+			$sql = 'UPDATE ' . $this->links_table . '
 				SET link_comment = ' . (int) $tmp['nb_comment'] . '
 				WHERE link_id = ' . (int) $tmp['comment_link_id'];
 			$this->db->sql_query($sql);

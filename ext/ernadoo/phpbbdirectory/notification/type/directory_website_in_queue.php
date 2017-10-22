@@ -45,6 +45,14 @@ class directory_website_in_queue extends \phpbb\notification\type\base
 	*/
 	protected $permission = 'a_';
 
+	/** @var \phpbb\user_loader */
+	protected $user_loader;
+
+	public function set_user_loader(\phpbb\user_loader $user_loader)
+	{
+		$this->user_loader = $user_loader;
+	}
+
 	/**
 	* Is available
 	*
@@ -122,7 +130,7 @@ class directory_website_in_queue extends \phpbb\notification\type\base
 		$link_name = $this->get_data('link_name');
 		$username = $this->user_loader->get_username($this->get_data('user_from'), 'no_profile');
 
-		return $this->user->lang('NOTIFICATION_DIR_WEBSITE_IN_QUEUE', $link_name, $username);
+		return $this->language->lang('NOTIFICATION_DIR_WEBSITE_IN_QUEUE', $link_name, $username);
 	}
 
 	/**
@@ -182,6 +190,6 @@ class directory_website_in_queue extends \phpbb\notification\type\base
 		$this->set_data('cat_id', $data['cat_id']);
 		$this->set_data('cat_name', $data['cat_name']);
 
-		return parent::create_insert_array($data, $pre_create_data);
+		parent::create_insert_array($data, $pre_create_data);
 	}
 }

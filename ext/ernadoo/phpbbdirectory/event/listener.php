@@ -14,8 +14,9 @@ namespace ernadoo\phpbbdirectory\event;
  * Event listener
  */
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use \ernadoo\phpbbdirectory\core\helper;
 
-class listener implements EventSubscriberInterface
+class listener extends helper implements EventSubscriberInterface
 {
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
@@ -23,11 +24,11 @@ class listener implements EventSubscriberInterface
 	/** @var \phpbb\controller\helper */
 	protected $helper;
 
+	/** @var \phpbb\language\language */
+	protected $language;
+
 	/** @var \phpbb\template\template */
 	protected $template;
-
-	/** @var \phpbb\user */
-	protected $user;
 
 	/** @var string $table_prefix */
 	protected $table_prefix;
@@ -38,20 +39,20 @@ class listener implements EventSubscriberInterface
 	/**
 	* Constructor
 	*
-	* @param \phpbb\db\driver\driver_interface	$db				Database object
-	* @param \phpbb\controller\helper			$helper			Controller helper object
-	* @param \phpbb\template\template			$template		Template object
-	* @param \phpbb\user						$user			User object
-	* @param string								$table_prefix 	prefix table
-	* @param string								$php_ext 		phpEx
+	* @param \phpbb\db\driver\driver_interface		$db				Database object
+	* @param \phpbb\controller\helper				$helper			Controller helper object
+	* @param \phpbb\language\language				$language		Language object
+	* @param \phpbb\template\template				$template		Template object
+	* @param string									$table_prefix 	prefix table
+	* @param string									$php_ext 		phpEx
 	* @access public
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user, $table_prefix, $php_ext)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\language\language $language, \phpbb\template\template $template, $table_prefix, $php_ext)
 	{
 		$this->db			= $db;
 		$this->helper 		= $helper;
+		$this->language		= $language;
 		$this->template 	= $template;
-		$this->user 		= $user;
 		$this->table_prefix = $table_prefix;
 		$this->php_ext		= $php_ext;
 	}
@@ -66,9 +67,8 @@ class listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return array(
-			'core.common'            				=> 'set_constants_tables',
 			'core.delete_user_after'				=> 'update_links_with_anonymous',
-			'core.page_header'        				=> 'add_page_header_link',
+			'core.page_header'        				=> 'add_page_header_variables',
 			'core.permissions'						=> 'permissions_add_directory',
 			'core.user_setup'						=> 'load_language_on_setup',
 			'core.viewonline_overwrite_location'	=> 'add_page_viewonline'
@@ -76,28 +76,25 @@ class listener implements EventSubscriberInterface
 	}
 
 	/**
-	* Define table constants
-	*
-	* @return null
-	*/
-	public function set_constants_tables()
-	{
-		define('DIR_CAT_TABLE', $this->table_prefix.'directory_cats');
-		define('DIR_COMMENT_TABLE', $this->table_prefix.'directory_comments');
-		define('DIR_LINK_TABLE', $this->table_prefix.'directory_links');
-		define('DIR_VOTE_TABLE', $this->table_prefix.'directory_votes');
-		define('DIR_WATCH_TABLE', $this->table_prefix.'directory_watch');
-	}
-
-	/**
 	* Display links to Directory
 	*
 	* @return null
 	*/
-	public function add_page_header_link()
+	public function add_page_header_variables()
 	{
+		$ext_theme_path		= $this->get_ext_name() . '/styles/prosilver/theme/';
+		$theme_lang_path	= $this->language->get_used_language();
+
+		// Prevent 'Twig_Error_Loader' if user's lang directory doesn't exist
+		if (!file_exists($ext_theme_path . $theme_lang_path . '/directory.css'))
+		{
+			// Fallback to English language.
+			$theme_lang_path = \phpbb\language\language::FALLBACK_LANGUAGE;
+		}
+
 		$this->template->assign_vars(array(
-			'U_DIRECTORY'	=> $this->helper->route('ernadoo_phpbbdirectory_base_controller'),
+			'T_DIR_THEME_LANG_NAME' => $theme_lang_path,
+			'U_DIRECTORY'			=> $this->helper->route('ernadoo_phpbbdirectory_base_controller'),
 		));
 	}
 
@@ -111,7 +108,7 @@ class listener implements EventSubscriberInterface
 	{
 		if (strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/directory') === 0)
 		{
-			$event['location']		= $this->user->lang['DIRECTORY'];
+			$event['location']		= $this->language->lang('DIRECTORY');
 			$event['location_url']	= $this->helper->route('ernadoo_phpbbdirectory_base_controller');
 		}
 	}
@@ -140,29 +137,21 @@ class listener implements EventSubscriberInterface
 	*/
 	public function permissions_add_directory($event)
 	{
-		$categories				= $event['categories'];
-		$categories				= array_merge($categories, array('dir' => 'ACL_CAT_DIRECTORY'));
-		$event['categories']	= $categories;
+		$event->update_subarray('categories', 'dir',	'ACL_CAT_DIRECTORY');
 
-		$permissions = $event['permissions'];
+		$event->update_subarray('permissions', 'm_delete_dir',			array('lang' => 'ACL_M_DELETE_DIR', 		'cat' => 'dir'));
+		$event->update_subarray('permissions', 'm_delete_comment_dir',	array('lang' => 'ACL_M_DELETE_COMMENT_DIR',	'cat' => 'dir'));
+		$event->update_subarray('permissions', 'm_edit_dir',			array('lang' => 'ACL_M_EDIT_DIR',			'cat' => 'dir'));
+		$event->update_subarray('permissions', 'm_edit_comment_dir',	array('lang' => 'ACL_M_EDIT_COMMENT_DIR',	'cat' => 'dir'));
 
-		$permissions = array_merge($permissions, array(
-			'm_delete_dir'			=> array('lang' => 'ACL_M_DELETE_DIR', 			'cat' => 'dir'),
-			'm_delete_comment_dir'	=> array('lang' => 'ACL_M_DELETE_COMMENT_DIR',	'cat' => 'dir'),
-			'm_edit_dir'			=> array('lang' => 'ACL_M_EDIT_DIR',			'cat' => 'dir'),
-			'm_edit_comment_dir'	=> array('lang' => 'ACL_M_EDIT_COMMENT_DIR',	'cat' => 'dir'),
-
-			'u_comment_dir'			=> array('lang' => 'ACL_U_COMMENT_DIR',			'cat' => 'dir'),
-			'u_delete_dir'			=> array('lang' => 'ACL_U_DELETE_DIR',			'cat' => 'dir'),
-			'u_delete_comment_dir'	=> array('lang' => 'ACL_U_DELETE_COMMENT_DIR',	'cat' => 'dir'),
-			'u_edit_dir'			=> array('lang' => 'ACL_U_EDIT_DIR',			'cat' => 'dir'),
-			'u_edit_comment_dir'	=> array('lang' => 'ACL_U_EDIT_COMMENT_DIR',	'cat' => 'dir'),
-			'u_search_dir'			=> array('lang' => 'ACL_U_SEARCH_DIR',			'cat' => 'dir'),
-			'u_submit_dir'			=> array('lang' => 'ACL_U_SUBMIT_DIR',			'cat' => 'dir'),
-			'u_vote_dir'			=> array('lang' => 'ACL_U_VOTE_DIR',			'cat' => 'dir'),
-		));
-
-		$event['permissions'] = $permissions;
+		$event->update_subarray('permissions', 'u_comment_dir',			array('lang' => 'ACL_U_COMMENT_DIR',		'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_delete_dir',			array('lang' => 'ACL_U_DELETE_DIR',			'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_delete_comment_dir',	array('lang' => 'ACL_U_DELETE_COMMENT_DIR',	'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_edit_dir',			array('lang' => 'ACL_U_EDIT_DIR',			'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_edit_comment_dir',	array('lang' => 'ACL_U_EDIT_COMMENT_DIR',	'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_search_dir',			array('lang' => 'ACL_U_SEARCH_DIR',			'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_submit_dir',			array('lang' => 'ACL_U_SUBMIT_DIR',			'cat' => 'dir'));
+		$event->update_subarray('permissions', 'u_vote_dir',			array('lang' => 'ACL_U_VOTE_DIR',			'cat' => 'dir'));
 	}
 
 	/**
@@ -180,17 +169,17 @@ class listener implements EventSubscriberInterface
 			$user_ids = array($user_ids);
 		}
 
-		$sql = 'UPDATE ' . DIR_COMMENT_TABLE . '
+		$sql = 'UPDATE ' . $this->comments_table . '
 			SET comment_user_id = ' . ANONYMOUS . '
 			WHERE ' . $this->db->sql_in_set('comment_user_id', $user_ids);
 		$this->db->sql_query($sql);
 
-		$sql = 'UPDATE ' . DIR_LINK_TABLE . '
+		$sql = 'UPDATE ' . $this->links_table . '
 			SET link_user_id = ' . ANONYMOUS . '
 			WHERE ' . $this->db->sql_in_set('link_user_id', $user_ids);
 		$this->db->sql_query($sql);
 
-		$sql = 'DELETE FROM ' . DIR_WATCH_TABLE . '
+		$sql = 'DELETE FROM ' . $this->watch_table . '
 			WHERE ' . $this->db->sql_in_set('user_id', $user_ids);
 		$this->db->sql_query($sql);
 	}
