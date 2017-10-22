@@ -20,8 +20,8 @@
 		}
 	],
 	"require": {
-		"php": ">=2.0",
-		"e1379/speaking-url": "dev-master"
+		"php": ">=0",
+		"E1379/speaking-url": "dev-master"
 	},
 	"extra": {
 		"display-name": "phpBB Directory",
