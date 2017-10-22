@@ -21,7 +21,7 @@
 	],
 	"require": {
 		"php": ">=5.4",
-		"E1379/speaking-url": "dev-master"
+		"E1379/speaking-url": "master"
 	},
 	"extra": {
 		"display-name": "phpBB Directory",
