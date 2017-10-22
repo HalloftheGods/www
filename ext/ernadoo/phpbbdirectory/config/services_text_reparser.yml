@@ -1,0 +1,24 @@
+services:
+    ernadoo.phpbbdirectory.text_reparser.cat_description:
+        class: ernadoo\phpbbdirectory\textreparser\plugins\cat_description
+        arguments:
+            - '@dbal.conn'
+            - '%tables.dir.categories%'
+        tags:
+            - { name: text_reparser.plugin }
+
+    ernadoo.phpbbdirectory.text_reparser.comment_text:
+        class: ernadoo\phpbbdirectory\textreparser\plugins\comment_text
+        arguments:
+            - '@dbal.conn'
+            - '%tables.dir.comments%'
+        tags:
+            - { name: text_reparser.plugin }
+
+    ernadoo.phpbbdirectory.text_reparser.link_description:
+        class: ernadoo\phpbbdirectory\textreparser\plugins\link_description
+        arguments:
+            - '@dbal.conn'
+            - '%tables.dir.links%'
+        tags:
+            - { name: text_reparser.plugin }

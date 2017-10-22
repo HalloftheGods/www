@@ -4,11 +4,8 @@
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
-function update_image(newimage) {
-	document.getElementById('image').src = (newimage) ? dir_icon_path + encodeURI(newimage) : "./images/spacer.gif";
-}
-
 (function ($) {  // Avoid conflicts with other libraries
+	'use strict';
 
 	$('#parent').change(function() {
 		var value = $(this).val();
@@ -27,14 +24,14 @@ function update_image(newimage) {
 		$('#cat_image').attr('src', newimage);
 	});
 
-	$('#cron_every').keyup(function() {
+	$('#cron_every').change(function() {
 		var day = $(this).val();
 
 		var date = new Date();
 		var timestamp = date.setTime((date.getTime()/1000) + day * 86400);
 
 		$.ajax({
-			url: dir_url_ajax,
+			url: dir_url_ajax_date,
 			type: 'GET',
 			data: 'timestamp='+timestamp
 		})
@@ -42,5 +39,21 @@ function update_image(newimage) {
 			$("#next_check").html(data.DATE);
 		});
 	})
+
+	$('#cat_name').keyup(function() {
+		if( xhr != null ) {
+			xhr.abort();
+			xhr = null;
+		}
+
+		xhr = $.ajax({
+			url: dir_url_ajax_slug,
+			type: 'POST',
+			data: { cat_name : $(this).val() }
+		})
+		.done(function( data ) {
+			$("#cat_route").val(data.SLUG);
+		});
+	});
 
 })(jQuery); // Avoid conflicts with other libraries

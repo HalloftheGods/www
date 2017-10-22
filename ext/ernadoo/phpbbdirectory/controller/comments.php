@@ -10,7 +10,9 @@
 
 namespace ernadoo\phpbbdirectory\controller;
 
-class comments
+use \ernadoo\phpbbdirectory\core\helper;
+
+class comments extends helper
 {
 	private $captcha;
 	private $s_comment;
@@ -21,6 +23,9 @@ class comments
 
 	/** @var \phpbb\config\config */
 	protected $config;
+
+	/** @var \phpbb\language\language */
+	protected $language;
 
 	/** @var \phpbb\template\template */
 	protected $template;
@@ -60,6 +65,7 @@ class comments
 	*
 	* @param \phpbb\db\driver\driver_interface					$db					Database object
 	* @param \phpbb\config\config								$config				Config object
+	* @param \phpbb\language\language							$language			Language object
 	* @param \phpbb\template\template							$template			Template object
 	* @param \phpbb\user										$user				User object
 	* @param \phpbb\controller\helper							$helper				Controller helper object
@@ -72,10 +78,11 @@ class comments
 	* @param string												$root_path			phpBB root path
 	* @param string												$php_ext			phpEx
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\pagination $pagination, \phpbb\captcha\factory $captcha_factory, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\comment $comment, $root_path, $php_ext)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\language\language $language, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\pagination $pagination, \phpbb\captcha\factory $captcha_factory, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\comment $comment, $root_path, $php_ext)
 	{
 		$this->db				= $db;
 		$this->config			= $config;
+		$this->language			= $language;
 		$this->template			= $template;
 		$this->user				= $user;
 		$this->helper			= $helper;
@@ -88,13 +95,12 @@ class comments
 		$this->root_path		= $root_path;
 		$this->php_ext			= $php_ext;
 
-		$this->user->add_lang_ext('ernadoo/phpbbdirectory', 'directory');
+		$language->add_lang('directory', 'ernadoo/phpbbdirectory');
 		$user->add_lang(array('ucp', 'posting'));
 
-		$this->template->assign_vars(array(
-			'S_PHPBB_DIRECTORY'				=> true,
-			'DIRECTORY_TRANSLATION_INFO'	=> (!empty($user->lang['DIRECTORY_TRANSLATION_INFO'])) ? $user->lang['DIRECTORY_TRANSLATION_INFO'] : '',
-			'S_SIMPLE_MESSAGE' 				=> true,
+		$template->assign_vars(array(
+			'S_PHPBB_DIRECTORY'	=> true,
+			'S_SIMPLE_MESSAGE' 	=> true,
 		));
 
 		// The CAPTCHA kicks in here. We can't help that the information gets lost on language change.
@@ -124,7 +130,7 @@ class comments
 		}
 
 		$sql = 'SELECT *
-			FROM ' . DIR_COMMENT_TABLE . '
+			FROM ' . $this->comments_table . '
 			WHERE comment_id = ' . (int) $comment_id;
 		$result = $this->db->sql_query($sql);
 		$value = $this->db->sql_fetchrow($result);
@@ -140,8 +146,8 @@ class comments
 
 			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_comment_view_controller', array('link_id' => (int) $link_id));
 			meta_refresh(3, $meta_info);
-			$message = $this->user->lang['DIR_COMMENT_DELETE_OK'];
-			$message = $message . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_COMMENT', '<a href="' . $meta_info . '">', '</a>');
+			$message = $this->language->lang('DIR_COMMENT_DELETE_OK');
+			$message = $message . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_COMMENT', '<a href="' . $meta_info . '">', '</a>');
 			return $this->helper->message($message);
 		}
 		else
@@ -163,7 +169,7 @@ class comments
 		$this->_check_comments_enable($link_id);
 
 		$sql = 'SELECT *
-			FROM ' . DIR_COMMENT_TABLE . '
+			FROM ' . $this->comments_table . '
 			WHERE comment_id = ' . (int) $comment_id;
 		$result = $this->db->sql_query($sql);
 		$value = $this->db->sql_fetchrow($result);
@@ -240,7 +246,7 @@ class comments
 		$this->_populate_form($link_id, $mode);
 
 		$sql = 'SELECT COUNT(comment_id) AS nb_comments
-			FROM ' . DIR_COMMENT_TABLE . '
+			FROM ' . $this->comments_table . '
 			WHERE comment_link_id = ' . (int) $link_id;
 		$result = $this->db->sql_query($sql);
 		$nb_comments = (int) $this->db->sql_fetchfield('nb_comments');
@@ -252,7 +258,7 @@ class comments
 		$sql_array = array(
 			'SELECT'	=> 'a.comment_id, a.comment_user_id, a. comment_user_ip, a.comment_date, a.comment_text, a.comment_uid, a.comment_bitfield, a.comment_flags, u.username, u.user_id, u.user_colour, z.foe',
 			'FROM'		=> array(
-					DIR_COMMENT_TABLE	=> 'a'),
+					$this->comments_table	=> 'a'),
 			'LEFT_JOIN'	=> array(
 					array(
 						'FROM'	=> array(USERS_TABLE => 'u'),
@@ -296,8 +302,8 @@ class comments
 				'U_DELETE'			=> ($delete_allowed) 	? $this->helper->route('ernadoo_phpbbdirectory_comment_delete_controller', array('link_id' => (int) $link_id, 'comment_id' => (int) $comments['comment_id'], '_referer' => $this->helper->get_current_url())) : '',
 
 				'S_IGNORE_POST'		=> ($comments['foe'] && ($view != 'show' || $comment_id != $comments['comment_id'])) ? true : false,
-				'L_IGNORE_POST'		=> ($comments['foe']) ? $this->user->lang('POST_BY_FOE', get_username_string('full', $comments['comment_user_id'], $comments['username'], $comments['user_colour']), '<a href="'.$this->helper->url('directory/link/'.$link_id.'/comment'.(($page > 1) ? '/'.$page : '').'?view=show#c'.(int) $comments['comment_id']).'">', '</a>') : '',
-				'L_POST_DISPLAY'	=> ($comments['foe']) ? $this->user->lang('POST_DISPLAY', '<a class="display_post" data-post-id="' . $comments['comment_id'] . '" href="' . $this->helper->url('directory/link/'.$link_id.'/comment'.(($page > 1) ? '/'.$page : '').'?c='.(int) $comments['comment_id'] . '&view=show#c'.(int) $comments['comment_id']).'">', '</a>') : '',
+				'L_IGNORE_POST'		=> ($comments['foe']) ? $this->language->lang('POST_BY_FOE', get_username_string('full', $comments['comment_user_id'], $comments['username'], $comments['user_colour']), '<a href="'.$this->helper->url('directory/link/'.$link_id.'/comment'.(($page > 1) ? '/'.$page : '').'?view=show#c'.(int) $comments['comment_id']).'">', '</a>') : '',
+				'L_POST_DISPLAY'	=> ($comments['foe']) ? $this->language->lang('POST_DISPLAY', '<a class="display_post" data-post-id="' . $comments['comment_id'] . '" href="' . $this->helper->url('directory/link/'.$link_id.'/comment'.(($page > 1) ? '/'.$page : '').'?c='.(int) $comments['comment_id'] . '&view=show#c'.(int) $comments['comment_id']).'">', '</a>') : '',
 
 				'S_INFO'			=> $this->auth->acl_get('m_info'),
 			));
@@ -311,11 +317,11 @@ class comments
 		$this->pagination->generate_template_pagination($base_url, 'pagination', 'page', $nb_comments, $this->config['dir_comments_per_page'], $start);
 
 		$this->template->assign_vars(array(
-			'TOTAL_COMMENTS'	=> $this->user->lang('DIR_NB_COMMS', (int) $nb_comments),
+			'TOTAL_COMMENTS'	=> $this->language->lang('DIR_NB_COMMS', (int) $nb_comments),
 			'S_HAVE_RESULT'		=> $have_result ? true : false,
 		));
 
-		return $this->helper->render('comments.html', $this->user->lang['DIR_COMMENT_TITLE']);
+		return $this->helper->render('comments.html', $this->language->lang('DIR_COMMENT_TITLE'));
 	}
 
 	/**
@@ -350,7 +356,7 @@ class comments
 			)
 		);
 
-		$error = preg_replace('#^([A-Z_]+)$#e', "(!empty(\$this->user->lang['\\1'])) ? \$this->user->lang['\\1'] : '\\1'", $error);
+		$error = array_map(array($this->language, 'lang'), $error);
 
 		if (!$this->user->data['is_registered'] && $this->config['dir_visual_confirm'])
 		{
@@ -362,14 +368,14 @@ class comments
 
 			if ($this->config['dir_visual_confirm_max_attempts'] && $this->captcha->get_attempt_count() > $this->config['dir_visual_confirm_max_attempts'])
 			{
-				$error[] = $this->user->lang['TOO_MANY_ADDS'];
+				$error[] = $this->language->lang('TOO_MANY_ADDS');
 			}
 		}
 
 		if (!$error)
 		{
 			$uid = $bitfield = $flags = '';
-			generate_text_for_storage($this->s_comment, $uid, $bitfield, $flags, (bool) $this->config['dir_allow_bbcode'], (bool) $this->config['dir_allow_links'], (bool) $this->config['dir_allow_smilies']);
+			generate_text_for_storage($this->s_comment, $uid, $bitfield, $flags, (bool) $this->config['dir_allow_bbcode'], (bool) $this->config['dir_allow_links'], (bool) $this->config['dir_allow_smilies'], (bool) $this->config['dir_allow_bbcode'], ($this->config['dir_allow_bbcode'] && $this->config['dir_allow_flash']), true, (bool) $this->config['dir_allow_links']);
 
 			$data_edit = array(
 				'comment_text'		=> $this->s_comment,
@@ -398,8 +404,8 @@ class comments
 
 			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_comment_view_controller', array('link_id' => (int) $link_id));
 			meta_refresh(3, $meta_info);
-			$message = $this->user->lang['DIR_'.strtoupper($mode).'_COMMENT_OK'];
-			$message = $message . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_COMMENT', '<a href="' . $meta_info . '">', '</a>');
+			$message = $this->language->lang('DIR_'.strtoupper($mode).'_COMMENT_OK');
+			$message = $message . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_COMMENT', '<a href="' . $meta_info . '">', '</a>');
 			return $this->helper->message($message);
 		}
 		else
@@ -422,7 +428,7 @@ class comments
 	private function _check_comments_enable($link_id)
 	{
 		$sql = 'SELECT link_cat
-			FROM ' . DIR_LINK_TABLE . '
+			FROM ' . $this->links_table . '
 			WHERE link_id = ' . (int) $link_id;
 		$result = $this->db->sql_query($sql);
 		$cat_id = (int) $this->db->sql_fetchfield('link_cat');
@@ -432,13 +438,15 @@ class comments
 		{
 			$this->categorie->get($cat_id);
 
-			if ($this->categorie->data['cat_allow_comments'])
+			if (!$this->categorie->data['cat_allow_comments'])
 			{
-				return;
+				throw new \phpbb\exception\http_exception(403, 'DIR_ERROR_NOT_AUTH');
 			}
 		}
-
-		throw new \phpbb\exception\http_exception(403, 'DIR_ERROR_NOT_AUTH');
+		else
+		{
+			throw new \phpbb\exception\http_exception(404, 'DIR_ERROR_NO_LINKS');
+		}
 	}
 
 	/**
@@ -476,13 +484,13 @@ class comments
 		$this->template->assign_vars(array(
 			'S_AUTH_COMM' 		=> $this->auth->acl_get('u_comment_dir'),
 
-			'BBCODE_STATUS'		=> ($this->config['dir_allow_bbcode']) 	? $this->user->lang('BBCODE_IS_ON', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>') : $this->user->lang('BBCODE_IS_OFF', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>'),
-			'IMG_STATUS'		=> ($this->config['dir_allow_bbcode']) 	? $this->user->lang['IMAGES_ARE_ON'] : $this->user->lang['IMAGES_ARE_OFF'],
-			'SMILIES_STATUS'	=> ($this->config['dir_allow_smilies'])	? $this->user->lang['SMILIES_ARE_ON'] : $this->user->lang['SMILIES_ARE_OFF'],
-			'URL_STATUS'		=> ($this->config['dir_allow_links'])	? $this->user->lang['URL_IS_ON'] : $this->user->lang['URL_IS_OFF'],
-			'FLASH_STATUS'		=> ($this->config['dir_allow_bbcode'] && $this->config['dir_allow_flash'])	? $this->user->lang['FLASH_IS_ON'] : $this->user->lang['FLASH_IS_OFF'],
+			'BBCODE_STATUS'		=> ($this->config['dir_allow_bbcode']) 	? $this->language->lang('BBCODE_IS_ON', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>') : $this->language->lang('BBCODE_IS_OFF', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>'),
+			'IMG_STATUS'		=> ($this->config['dir_allow_bbcode']) 	? $this->language->lang('IMAGES_ARE_ON') : $this->language->lang('IMAGES_ARE_OFF'),
+			'SMILIES_STATUS'	=> ($this->config['dir_allow_smilies'])	? $this->language->lang('SMILIES_ARE_ON') : $this->language->lang('SMILIES_ARE_OFF'),
+			'URL_STATUS'		=> ($this->config['dir_allow_links'])	? $this->language->lang('URL_IS_ON') : $this->language->lang('URL_IS_OFF'),
+			'FLASH_STATUS'		=> ($this->config['dir_allow_bbcode'] && $this->config['dir_allow_flash'])	? $this->language->lang('FLASH_IS_ON') : $this->language->lang('FLASH_IS_OFF'),
 
-			'L_DIR_REPLY_EXP'	=> $this->user->lang('DIR_REPLY_EXP', $this->config['dir_length_comments']),
+			'L_DIR_REPLY_EXP'	=> $this->language->lang('DIR_REPLY_EXP', $this->config['dir_length_comments']),
 
 			'S_COMMENT' 		=> isset($this->s_comment) ? $this->s_comment : '',
 
