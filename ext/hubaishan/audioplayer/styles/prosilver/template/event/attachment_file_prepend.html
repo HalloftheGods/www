@@ -1,0 +1,8 @@
+		<!-- IF _file.S_AUDIO -->
+			<p style="text-align:center">
+				<audio src="{_file.U_VIEW_LINK}" style="width:80%" controls preload="none"></audio> 
+				<!-- IF _file.COMMENT --><br/><em>{_file.COMMENT}</em><!-- ENDIF -->
+				<br/><a class="button" style="height:24px;font-size:14px;margin-bottom: 6px;" href="{_file.U_DOWNLOAD_LINK}">{_file.DOWNLOAD_NAME}</a>
+				<br/>({_file.FILESIZE} {_file.SIZE_LANG}) {_file.L_DOWNLOAD_COUNT}
+			</p>
+		<!-- ENDIF -->

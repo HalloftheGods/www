@@ -1,0 +1,39 @@
+{
+    "name": "hifikabin/moonphase",
+    "type": "phpbb-extension",
+    "description": "Adds the Phases of the Moon into the Prosilver header of your forum.",
+    "homepage": "",
+    "version": "1.0.3",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "James Newcombe",
+            "username": "hifikabin",
+            "email": "webmaster@hifikabin.me.uk",
+            "homepage": "http://phpbb.hifikabin.me.uk",
+            "role": "Developer"
+        },
+        {
+            "name": "",
+            "username": "",
+            "email": "",
+            "homepage": "http://www.calendrier-lunaire.net",
+            "role": "Original Code Author"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "phpbb/phpbb": ">=3.1.4"
+    },
+    "extra": {
+        "display-name": "Moon Phases",
+        "soft-require": {
+            "phpbb/phpbb": ">=3.1.4"
+        },
+        "version-check": {
+            "host": "www.phpbb.com",
+            "directory": "/customise/db/extension/moon_phase",
+            "filename": "version_check"
+        }
+    }
+}

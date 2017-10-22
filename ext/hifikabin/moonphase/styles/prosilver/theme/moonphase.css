@@ -1,0 +1,16 @@
+.headerbar #moon {
+    float: right;
+    margin-right: 5px;
+    margin-left: 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-decoration:none;
+}
+.rtl .headerbar #moon {
+    float: left;
+    margin-right: 15px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-decoration:none;
+}

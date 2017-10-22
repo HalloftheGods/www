@@ -1,0 +1,7 @@
+services:
+    hifikabin.moonphase.listener:
+        class: hifikabin\moonphase\event\listener
+        arguments:
+            - '@user'
+        tags:
+            - { name: event.listener }
