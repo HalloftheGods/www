@@ -349,6 +349,7 @@ ul.linklist .dropdown-up .dropdown {
     position: absolute;
     bottom: 7px;
     border-bottom: 1px dotted #8C6407;
+    top: 15px;
 }
 
 .navbar .crumb a:hover:before {
