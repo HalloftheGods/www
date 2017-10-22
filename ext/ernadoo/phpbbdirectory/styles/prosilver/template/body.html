@@ -1,12 +1,12 @@
-{% include 'overall_header.html' %}
-{% if S_HAS_SUBCAT %}
-	{% include 'catlist.html' %}
-	{% include 'recents.html' %}
-{% else %}
+<!-- INCLUDE overall_header.html -->
+<!-- IF S_HAS_SUBCAT -->
+	<!-- INCLUDE catlist.html -->
+	<!-- INCLUDE recents.html -->
+<!-- ELSE -->
 	<div class="panel">
 		<div class="inner">
-				<strong>{{ lang('DIR_NO_DRAW_CAT') }}</strong>
+				<strong>{L_DIR_NO_DRAW_CAT}</strong>
 		</div>
 	</div>
-{% endif %}
-{% include 'footer.html' %}
+<!-- ENDIF -->
+<!-- INCLUDE footer.html -->

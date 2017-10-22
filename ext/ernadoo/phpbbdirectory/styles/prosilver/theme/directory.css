@@ -1,7 +1,6 @@
 .back2top .commentlink {
 	margin-left: 20px;
 	margin-right: 10px;
-	height:16px;
 }
 
 .linkbody {
@@ -17,8 +16,7 @@
 
 .commentbody .content {
 	font-size: 1.3em;
-	clear: none;
-	padding-right: 5px;
+	clear: none !important;
 }
 
 .postbody h3 img {
@@ -26,18 +24,16 @@
 	vertical-align: bottom;
 }
 
-.dir_cat_left {
-	padding: 0 1px 0 0;
+td.dir_cat_left {
+	padding-right: 1px;
 	width: 50%;
-	vertical-align: top;
-	font-size: 1em;
+	vertical-align: top !important;
 }
 
-.dir_cat_right {
-	padding: 0 0 0 1px;
+td.dir_cat_right {
+	padding-left: 1px;
 	width: 50%;
-	vertical-align: top;
-	font-size: 1em;
+	vertical-align: top !important;
 }
 
 .head {
@@ -56,8 +52,10 @@ dl.icon_cat {
 dl.icon_cat dt {
 	padding-top: 10px;
 	padding-left: 90px;					/* Space for folder icon */
+	background-repeat: no-repeat;
+	background-position: 5px 95%;		/* Position of topic icon */
 	width: auto;
-	margin-right: 0;
+	margin-right: 0px;
 }
 dl.icon_cat dd {
 	display: none;
@@ -69,8 +67,12 @@ dl.icon_cat dd {
 	padding: 0 2px;
 }
 
+.icon-directory {
+	background-image: url("images/icon_directory.gif");
+}
+
 .linkinfos {
-	padding: 10px 0 10px 0;
+	padding: 10px 0 10px 0px;
 	text-align:center;
 	min-height: 160px;
 	width:140px;
@@ -80,7 +82,7 @@ dl.icon_cat dd {
 	clear:left;
 }
 
-.linktitle li {
+ul.linktitle li {
 	display: block;
 	font-size: 1.1em;
 	line-height: 2.2em;
@@ -92,20 +94,4 @@ dl.icon_cat dd {
 
 .signature {
 	clear: none;
-}
-
-table.recents {
-	padding: 2px;
-	border-spacing: 10px;
-	width: 100%;
-}
-
-.rtl dl.icon_cat {
-	background-position: right 22px center;
-	padding-left: 0;
-}
-
-.rtl dl.icon_cat dt {
-	padding-right: 90px;
-	padding-left: 0;
 }

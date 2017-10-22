@@ -17,20 +17,6 @@ namespace ernadoo\phpbbdirectory\notification\type;
 
 class directory_website_approved extends \phpbb\notification\type\base
 {
-	/** @var \phpbb\controller\helper */
-	protected $helper;
-
-	/**
-	* Set the controller helper
-	*
-	* @param \phpbb\controller\helper $helper
-	* @return null
-	*/
-	public function set_controller_helper(\phpbb\controller\helper $helper)
-	{
-		$this->helper = $helper;
-	}
-
 	/**
 	* Get notification type name
 	*
@@ -107,12 +93,13 @@ class directory_website_approved extends \phpbb\notification\type\base
 			'ignore_users'		=> array(),
 		), $options);
 
-		$users = array();
-		$users[$data['user_from']] = $this->notification_manager->get_default_methods();
+		$users = array($data['user_from']);
 
-		return $this->check_user_notification_options(array_keys($users), array_merge($options, array(
+		$notify_users = $this->check_user_notification_options($users, array_merge($options, array(
 			'item_type'		=> self::$notification_option['id'],
 		)));
+
+		return $notify_users;
 	}
 
 	/**
@@ -125,7 +112,7 @@ class directory_website_approved extends \phpbb\notification\type\base
 		$link_name = $this->get_data('link_name');
 		$cat_name = $this->get_data('cat_name');
 
-		return $this->language->lang('NOTIFICATION_DIR_WEBSITE_APPROVED', $link_name, $cat_name);
+		return $this->user->lang('NOTIFICATION_DIR_WEBSITE_APPROVED', $link_name, $cat_name);
 	}
 
 	/**
@@ -157,7 +144,7 @@ class directory_website_approved extends \phpbb\notification\type\base
 	*/
 	public function get_url()
 	{
-		return $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $this->get_data('cat_id'));
+		return append_sid($this->phpbb_root_path . 'directory/categorie/' .  (int) $this->get_data('cat_id'));
 	}
 
 	/**
@@ -184,6 +171,6 @@ class directory_website_approved extends \phpbb\notification\type\base
 		$this->set_data('cat_id', $data['cat_id']);
 		$this->set_data('cat_name', $data['cat_name']);
 
-		parent::create_insert_array($data, $pre_create_data);
+		return parent::create_insert_array($data, $pre_create_data);
 	}
 }

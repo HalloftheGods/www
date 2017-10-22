@@ -1,10 +1,13 @@
 <?php
 /**
 *
-* phpBB Directory extension for the phpBB Forum Software package.
+* This file is part of the phpBB Forum Software package.
 *
-* @copyright (c) 2014 ErnadoO <http://www.phpbb-services.com>
+* @copyright (c) phpBB Limited <https://www.phpbb.com>
 * @license GNU General Public License, version 2 (GPL-2.0)
+*
+* For full copyright and license information, please see
+* the docs/CREDITS.txt file.
 *
 */
 
@@ -15,16 +18,16 @@ class nestedset_category extends \phpbb\tree\nestedset
 	/**
 	* Construct
 	*
-	* @param \phpbb\db\driver\driver_interface	$db					Database connection
-	* @param \phpbb\lock\db						$lock				Lock class used to lock the table when moving forums around
-	* @param string								$categorie_table	Categories table
+	* @param \phpbb\db\driver\driver_interface	$db				Database connection
+	* @param \phpbb\lock\db						$lock			Lock class used to lock the table when moving forums around
+	* @param string								$table_name		Table name
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\lock\db $lock, $categorie_table)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\lock\db $lock, $table_name)
 	{
 		parent::__construct(
 			$db,
 			$lock,
-			$categorie_table,
+			$table_name,
 			'DIR_NESTEDSET_',
 			'',
 			array(

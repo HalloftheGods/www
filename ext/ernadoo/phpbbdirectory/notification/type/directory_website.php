@@ -17,34 +17,6 @@ namespace ernadoo\phpbbdirectory\notification\type;
 
 class directory_website extends \phpbb\notification\type\base
 {
-	/** @var \phpbb\controller\helper */
-	protected $helper;
-
-	/** @var string */
-	protected $watch_table;
-
-	/**
-	* Set the controller helper
-	*
-	* @param \phpbb\controller\helper $helper
-	* @return null
-	*/
-	public function set_controller_helper(\phpbb\controller\helper $helper)
-	{
-		$this->helper = $helper;
-	}
-
-	/**
-	 * Set the watch_table
-	 *
-	 * @param string $watch_table
-	 * @return null
-	 */
-	public function set_watch_table($watch_table)
-	{
-		$this->watch_table = $watch_table;
-	}
-
 	/**
 	* Get notification type name
 	*
@@ -65,14 +37,6 @@ class directory_website extends \phpbb\notification\type\base
 		'lang'	=> 'NOTIFICATION_TYPE_DIR_UCP_WEBSITE',
 		'group'	=> 'NOTIFICATION_DIR_UCP',
 	);
-
-	/** @var \phpbb\user_loader */
-	protected $user_loader;
-
-	public function set_user_loader(\phpbb\user_loader $user_loader)
-	{
-		$this->user_loader = $user_loader;
-	}
 
 	/**
 	* Is available
@@ -122,7 +86,7 @@ class directory_website extends \phpbb\notification\type\base
 		$users = array();
 
 		$sql = 'SELECT user_id
-			FROM ' . $this->watch_table . '
+			FROM ' . DIR_WATCH_TABLE . '
 			WHERE cat_id = ' . (int) $data['cat_id'] . '
 				AND notify_status = ' . NOTIFY_YES . '
 				AND user_id <> ' . (int) $data['user_from'];
@@ -140,7 +104,9 @@ class directory_website extends \phpbb\notification\type\base
 
 		sort($users);
 
-		return $this->check_user_notification_options($users, $options);
+		$notify_users = $this->check_user_notification_options($users, $options);
+
+		return $notify_users;
 	}
 
 	/**
@@ -164,7 +130,7 @@ class directory_website extends \phpbb\notification\type\base
 		$username = $this->user_loader->get_username($this->get_data('user_from'), 'no_profile');
 		$cat_name = $this->get_data('cat_name');
 
-		return $this->language->lang('NOTIFICATION_DIR_NEW', $username, $link_name, $cat_name);
+		return $this->user->lang('NOTIFICATION_DIR_NEW', $username, $link_name, $cat_name);
 	}
 
 
@@ -200,7 +166,7 @@ class directory_website extends \phpbb\notification\type\base
 	*/
 	public function get_url()
 	{
-		return $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $this->get_data('cat_id'));
+		return append_sid($this->phpbb_root_path . 'directory/categorie/' .  (int) $this->get_data('cat_id'));
 	}
 
 	/**
@@ -230,6 +196,6 @@ class directory_website extends \phpbb\notification\type\base
 		$this->set_data('cat_id', $data['cat_id']);
 		$this->set_data('cat_name', $data['cat_name']);
 
-		parent::create_insert_array($data, $pre_create_data);
+		return parent::create_insert_array($data, $pre_create_data);
 	}
 }

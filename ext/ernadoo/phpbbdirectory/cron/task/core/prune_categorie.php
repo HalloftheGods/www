@@ -12,11 +12,17 @@ namespace ernadoo\phpbbdirectory\cron\task\core;
 
 class prune_categorie extends \phpbb\cron\task\base implements \phpbb\cron\task\parametrized
 {
+	/** @var \phpbb\db\driver\driver_interface */
+	protected $db;
+
 	/** @var \phpbb\config\config */
 	protected $config;
 
-	/** @var \ernadoo\phpbbdirectory\core\cron */
-	protected $dir_cron;
+	/** @var \ernadoo\phpbbdirectory\core\link */
+	protected $directory_cron;
+
+	/** @var string phpEx */
+	protected $php_ext;
 
 	/** @var array */
 	private $cat_data;
@@ -24,13 +30,17 @@ class prune_categorie extends \phpbb\cron\task\base implements \phpbb\cron\task\
 	/**
 	* Constructor.
 	*
+	* @param \phpbb\db\driver\driver_interface 	$db				Database object
 	* @param \phpbb\config\config 				$config			Config object
-	* @param \ernadoo\phpbbdirectory\core\cron	$directory_cron	PhpBB Directory extension link object
+	* @param \ernadoo\phpbbdirectory\core\link	$directory_cron	PhpBB Directory extension link object
+	* @param string								$php_ext		phpEx
 	*/
-	public function __construct(\phpbb\config\config $config, \ernadoo\phpbbdirectory\core\cron $directory_cron)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \ernadoo\phpbbdirectory\core\link $directory_cron, $php_ext)
 	{
-		$this->config 		= $config;
-		$this->dir_cron 	= $directory_cron;
+		$this->db 				= $db;
+		$this->config 			= $config;
+		$this->dir_cron 		= $directory_cron;
+		$this->php_ext 			= $php_ext;
 	}
 
 	/**
@@ -102,7 +112,17 @@ class prune_categorie extends \phpbb\cron\task\base implements \phpbb\cron\task\
 		{
 			$cat_id = $request->variable('c', 0);
 
-			$this->cat_data = $this->dir_cron->get_cat($cat_id);
+			$sql = 'SELECT cat_id, cat_cron_enable, cat_cron_next, cat_cron_freq, cat_cron_nb_check
+				FROM ' . DIR_CAT_TABLE . "
+				WHERE cat_id = $cat_id";
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+			$this->db->sql_freeresult($result);
+
+			if ($row)
+			{
+				$this->cat_data = $row;
+			}
 		}
 	}
 }

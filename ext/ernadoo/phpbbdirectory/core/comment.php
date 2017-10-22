@@ -10,26 +10,27 @@
 
 namespace ernadoo\phpbbdirectory\core;
 
-use \ernadoo\phpbbdirectory\core\helper;
-
-class comment extends helper
+/**
+ * comment class
+ */
+class comment
 {
 	/** @var \phpbb\db\driver\driver_interface $db */
 	protected $db;
 
-	/** @var \phpbb\language\language */
-	protected $language;
+	/** @var \phpbb\user */
+	protected $user;
 
 	/**
 	* Constructor
 	*
-	* @param \phpbb\db\driver\driver_interface	$db			Database object
-	* @param \phpbb\language\language			$language	Language object
+	* @param \phpbb\db\driver\driver_interface	$db		Database object
+	* @param \phpbb\user 						$user	User object
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\language\language $language)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\user $user)
 	{
-		$this->db		= $db;
-		$this->language	= $language;
+		$this->db	= $db;
+		$this->user = $user;
 	}
 
 	/**
@@ -42,10 +43,10 @@ class comment extends helper
 	{
 		$this->db->sql_transaction('begin');
 
-		$sql = 'INSERT INTO ' . $this->comments_table . ' ' . $this->db->sql_build_array('INSERT', $data);
+		$sql = 'INSERT INTO ' . DIR_COMMENT_TABLE . ' ' . $this->db->sql_build_array('INSERT', $data);
 		$this->db->sql_query($sql);
 
-		$sql = 'UPDATE ' . $this->links_table . '
+		$sql = 'UPDATE ' . DIR_LINK_TABLE . '
 			SET link_comment = link_comment + 1
 			WHERE link_id = ' . (int) $data['comment_link_id'];
 		$this->db->sql_query($sql);
@@ -62,7 +63,7 @@ class comment extends helper
 	*/
 	public function edit($data, $comment_id)
 	{
-		$sql = 'UPDATE ' . $this->comments_table . '
+		$sql = 'UPDATE ' . DIR_COMMENT_TABLE . '
 			SET ' . $this->db->sql_build_array('UPDATE', $data) . '
 			WHERE comment_id = ' . (int) $comment_id;
 		$this->db->sql_query($sql);
@@ -81,10 +82,10 @@ class comment extends helper
 
 		$this->db->sql_transaction('begin');
 
-		$sql = 'DELETE FROM ' . $this->comments_table . ' WHERE comment_id = ' . (int) $comment_id;
+		$sql = 'DELETE FROM ' . DIR_COMMENT_TABLE . ' WHERE comment_id = ' . (int) $comment_id;
 		$this->db->sql_query($sql);
 
-		$sql = 'UPDATE ' . $this->links_table . '
+		$sql = 'UPDATE ' . DIR_LINK_TABLE . '
 			SET link_comment = link_comment - 1
 			WHERE link_id = ' . (int) $link_id;
 		$this->db->sql_query($sql);
@@ -94,7 +95,7 @@ class comment extends helper
 		if ($request->is_ajax())
 		{
 			$sql = 'SELECT COUNT(comment_id) AS nb_comments
-				FROM ' . $this->comments_table . '
+				FROM ' . DIR_COMMENT_TABLE . '
 				WHERE comment_link_id = ' . (int) $link_id;
 			$result = $this->db->sql_query($sql);
 			$nb_comments = (int) $this->db->sql_fetchfield('nb_comments');
@@ -104,10 +105,10 @@ class comment extends helper
 			$json_response->send(array(
 				'success' => true,
 
-				'MESSAGE_TITLE'		=> $this->language->lang('INFORMATION'),
-				'MESSAGE_TEXT'		=> $this->language->lang('DIR_COMMENT_DELETE_OK'),
+				'MESSAGE_TITLE'		=> $this->user->lang['INFORMATION'],
+				'MESSAGE_TEXT'		=> $this->user->lang['DIR_COMMENT_DELETE_OK'],
 				'COMMENT_ID'		=> $comment_id,
-				'TOTAL_COMMENTS'	=> $this->language->lang('DIR_NB_COMMS', $nb_comments),
+				'TOTAL_COMMENTS'	=> $this->user->lang('DIR_NB_COMMS', $nb_comments),
 			));
 		}
 	}

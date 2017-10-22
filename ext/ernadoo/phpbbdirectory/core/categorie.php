@@ -10,18 +10,13 @@
 
 namespace ernadoo\phpbbdirectory\core;
 
-use \ernadoo\phpbbdirectory\core\helper;
-
-class categorie extends helper
+class categorie
 {
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
 
 	/** @var \phpbb\config\config */
 	protected $config;
-
-	/** @var \phpbb\language\language */
-	protected $language;
 
 	/** @var \phpbb\template\template */
 	protected $template;
@@ -41,6 +36,9 @@ class categorie extends helper
 	/** @var \phpbb\cron\manager */
 	protected $cron;
 
+	/** @var \ernadoo\phpbbdirectory\core\helper */
+	protected $dir_helper;
+
 
 	/** @var array data */
 	public $data = array();
@@ -50,25 +48,25 @@ class categorie extends helper
 	*
 	* @param \phpbb\db\driver\driver_interface 		$db			Database object
 	* @param \phpbb\config\config 					$config		Config object
-	* @param \phpbb\language\language				$language	Language object
 	* @param \phpbb\template\template 				$template	Template object
 	* @param \phpbb\user 							$user		User object
 	* @param \phpbb\controller\helper 				$helper		Controller helper object
 	* @param \phpbb\request\request 				$request	Request object
 	* @param \phpbb\auth\auth 						$auth		Auth object
 	* @param \phpbb\cron\manager					$cron		Cron object
+	* @param \ernadoo\phpbbdirectory\core\helper	$dir_helper	PhpBB Directory extension helper object
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\language\language $language, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\cron\manager $cron)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\cron\manager $cron, \ernadoo\phpbbdirectory\core\helper $dir_helper)
 	{
 		$this->db			= $db;
 		$this->config		= $config;
-		$this->language		= $language;
 		$this->template		= $template;
 		$this->user			= $user;
 		$this->helper		= $helper;
 		$this->request		= $request;
 		$this->auth			= $auth;
 		$this->cron 		= $cron;
+		$this->dir_helper	= $dir_helper;
 	}
 
 	/**
@@ -90,7 +88,7 @@ class categorie extends helper
 	public function make_cat_jumpbox()
 	{
 		$sql = 'SELECT cat_id, cat_name, parent_id, left_id, right_id
-			FROM ' . $this->categories_table . '
+			FROM ' . DIR_CAT_TABLE . '
 			ORDER BY left_id ASC';
 		$result = $this->db->sql_query($sql, 600);
 
@@ -119,7 +117,7 @@ class categorie extends helper
 				'FORUM_ID'		=> $row['cat_id'],
 				'FORUM_NAME'	=> $row['cat_name'],
 				'S_FORUM_COUNT'	=> $iteration,
-				'LINK'			=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $row['cat_id']),
+				'LINK'			=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => $row['cat_id'])),
 			));
 
 			for ($i = 0; $i < $padding; $i++)
@@ -151,7 +149,7 @@ class categorie extends helper
 
 		// This query is identical to the jumpbox one
 		$sql = 'SELECT cat_id, cat_name, parent_id, left_id, right_id
-			FROM ' . $this->categories_table . '
+			FROM ' . DIR_CAT_TABLE . '
 			ORDER BY left_id ASC';
 		$result = $this->db->sql_query($sql, 600);
 
@@ -202,7 +200,7 @@ class categorie extends helper
 		$sql_array = array(
 			'SELECT'	=> 'cat_id, left_id, right_id, parent_id, cat_name, cat_desc, display_subcat_list, cat_desc_uid, cat_desc_bitfield, cat_desc_options, cat_links, cat_icon, cat_count_all',
 			'FROM'		=> array(
-				$this->categories_table => ''
+				DIR_CAT_TABLE => ''
 			),
 		);
 
@@ -266,7 +264,7 @@ class categorie extends helper
 					if ($subcat_row['display'] && $subcat_row['parent_id'] == $dir_cat_id)
 					{
 						$subcats_list[] = array(
-							'link'		=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $subcat_id),
+							'link'		=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $subcat_id)),
 							'name'		=> $subcat_row['name'],
 							'links'		=> $subcat_row['links']
 						);
@@ -282,9 +280,9 @@ class categorie extends helper
 				'CAT_NAME'				=> $row['cat_name'],
 				'CAT_DESC'				=> generate_text_for_display($row['cat_desc'], $row['cat_desc_uid'], $row['cat_desc_bitfield'], $row['cat_desc_options']),
 				'CAT_LINKS'				=> $row['cat_links'],
-				'CAT_IMG'				=> $this->get_img_path('icons', $row['cat_icon']),
+				'CAT_IMG'				=> $this->dir_helper->get_img_path('icons', $row['cat_icon']),
 
-				'U_CAT'					=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $row['cat_id']),
+				'U_CAT'					=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $row['cat_id'])),
 			));
 
 			// Assign subcats loop for style authors
@@ -316,7 +314,7 @@ class categorie extends helper
 			if ($task->is_ready())
 			{
 				$url = $task->get_url();
-				$this->template->assign_var('RUN_CRON_TASK', '<img src="' . $url . '" width="1" height="1" alt="" />');
+				$this->template->assign_var('RUN_CRON_TASK', '<img src="' . $url . '" width="1" height="1" alt="cron" />');
 			}
 		}
 	}
@@ -334,10 +332,10 @@ class categorie extends helper
 			$sql_array = array(
 				'SELECT'	=> 'c.*, w.notify_status',
 				'FROM'		=> array(
-						$this->categories_table	=> 'c'),
+						DIR_CAT_TABLE	=> 'c'),
 				'LEFT_JOIN'	=> array(
 						array(
-							'FROM'	=> array($this->watch_table	=> 'w'),
+							'FROM'	=> array(DIR_WATCH_TABLE	=> 'w'),
 							'ON'	=> 'c.cat_id = w.cat_id AND w.user_id = ' . (int) $this->user->data['user_id']
 						),
 				),
@@ -379,7 +377,7 @@ class categorie extends helper
 					'FORUM_NAME'	=> $parent_data['cat_name'],
 					'FORUM_ID'		=> $parent_cat_id,
 					'MICRODATA'		=> $microdata_attr . '="' . $parent_cat_id . '"',
-					'U_VIEW_FORUM'	=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $parent_cat_id),
+					'U_VIEW_FORUM'	=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $parent_cat_id)),
 				));
 			}
 		}
@@ -388,7 +386,7 @@ class categorie extends helper
 			'FORUM_NAME'	=> $dir_cat_data['cat_name'],
 			'FORUM_ID'		=> $dir_cat_data['cat_id'],
 			'MICRODATA'		=> $microdata_attr . '="' . $dir_cat_data['cat_id'] . '"',
-			'U_VIEW_FORUM'	=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $dir_cat_data['cat_id']),
+			'U_VIEW_FORUM'	=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $dir_cat_data['cat_id'])),
 		));
 
 		return;
@@ -405,19 +403,19 @@ class categorie extends helper
 	{
 		if ($validate && !$this->auth->acl_get('a_'))
 		{
-			return $this->language->lang('DIR_SUBMIT_TYPE_1');
+			return $this->user->lang['DIR_SUBMIT_TYPE_1'];
 		}
 		else if (!$validate && !$this->auth->acl_get('a_'))
 		{
-			return $this->language->lang('DIR_SUBMIT_TYPE_2');
+			return $this->user->lang['DIR_SUBMIT_TYPE_2'];
 		}
 		else if ($this->auth->acl_get('a_'))
 		{
-			return $this->language->lang('DIR_SUBMIT_TYPE_3');
+			return $this->user->lang['DIR_SUBMIT_TYPE_3'];
 		}
 		else if ($this->auth->acl_get('m_'))
 		{
-			return $this->language->lang('DIR_SUBMIT_TYPE_4');
+			return $this->user->lang['DIR_SUBMIT_TYPE_4'];
 		}
 
 		throw new \phpbb\exception\runtime_exception('DIR_ERROR_SUBMIT_TYPE');
@@ -426,12 +424,12 @@ class categorie extends helper
 	/**
 	* Category watching common code
 	*
-	* @param	string		$mode			Watch or unwatch a category
-	* @param	array		$s_watching		An empty array, passed by reference
-	* @param	int			$user_id		The user ID
-	* @param	int			$cat_id			The category ID
-	* @param	string		$notify_status	User is watching the category?
-	* @return	null|string
+	* @param	string	$mode			Watch or unwatch a category
+	* @param	array	$s_watching		An empty array, passed by reference
+	* @param	int		$user_id		The user ID
+	* @param	int		$cat_id			The category ID
+	* @param	string	$notify_status	User is watching the category?
+	* @return	null
 	*/
 	public function watch_categorie($mode, &$s_watching, $user_id, $cat_id, $notify_status)
 	{
@@ -444,17 +442,17 @@ class categorie extends helper
 			{
 				if ($mode == 'unwatch')
 				{
-					$sql = 'DELETE FROM ' . $this->watch_table . "
+					$sql = 'DELETE FROM ' . DIR_WATCH_TABLE . "
 						WHERE cat_id = $cat_id
 							AND user_id = $user_id";
 					$this->db->sql_query($sql);
 
-					$redirect_url = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
-					$message = $this->language->lang('DIR_NOT_WATCHING_CAT');
+					$redirect_url = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
+					$message = $this->user->lang['DIR_NOT_WATCHING_CAT'];
 
 					if (!$this->request->is_ajax())
 					{
-						$message .= '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $redirect_url . '">', '</a>');
+						$message .= '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $redirect_url . '">', '</a>');
 					}
 
 					meta_refresh(3, $redirect_url);
@@ -466,7 +464,7 @@ class categorie extends helper
 
 					if ($notify_status != NOTIFY_YES)
 					{
-						$sql = 'UPDATE ' . $this->watch_table . '
+						$sql = 'UPDATE ' . DIR_WATCH_TABLE . '
 							SET notify_status = ' . NOTIFY_YES . "
 							WHERE cat_id = $cat_id
 								AND user_id = $user_id";
@@ -478,16 +476,16 @@ class categorie extends helper
 			{
 				if ($mode == 'watch')
 				{
-					$sql = 'INSERT INTO ' . $this->watch_table . " (user_id, cat_id, notify_status)
+					$sql = 'INSERT INTO ' . DIR_WATCH_TABLE . " (user_id, cat_id, notify_status)
 						VALUES ($user_id, $cat_id, " . NOTIFY_YES . ')';
 					$this->db->sql_query($sql);
 
-					$redirect_url = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
-					$message = $this->language->lang('DIR_ARE_WATCHING_CAT');
+					$redirect_url = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
+					$message = $this->user->lang['DIR_ARE_WATCHING_CAT'];
 
 					if (!$this->request->is_ajax())
 					{
-						$message .= '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $redirect_url . '">', '</a>');
+						$message .= '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $redirect_url . '">', '</a>');
 					}
 
 					meta_refresh(3, $redirect_url);
@@ -509,8 +507,8 @@ class categorie extends helper
 		{
 			$s_watching['link'] 		= $this->helper->route('ernadoo_phpbbdirectory_suscribe_controller', array('cat_id' => $cat_id, 'mode' => (($is_watching) ? 'unwatch' : 'watch')));
 			$s_watching['link_toggle'] 	= $this->helper->route('ernadoo_phpbbdirectory_suscribe_controller', array('cat_id' => $cat_id, 'mode' => ((!$is_watching) ? 'unwatch' : 'watch')));
-			$s_watching['title'] 		= $this->language->lang((($is_watching) ? 'DIR_STOP' : 'DIR_START') . '_WATCHING_CAT');
-			$s_watching['title_toggle'] = $this->language->lang(((!$is_watching) ? 'DIR_STOP' : 'DIR_START') . '_WATCHING_CAT');
+			$s_watching['title'] 		= $this->user->lang[(($is_watching) ? 'DIR_STOP' : 'DIR_START') . '_WATCHING_CAT'];
+			$s_watching['title_toggle'] = $this->user->lang[((!$is_watching) ? 'DIR_STOP' : 'DIR_START') . '_WATCHING_CAT'];
 			$s_watching['is_watching'] 	= $is_watching;
 		}
 
@@ -525,12 +523,10 @@ class categorie extends helper
 	*/
 	static public function getname($cat_id)
 	{
-		global $db, $phpbb_container;
-
-		$categories_table = $phpbb_container->getParameter('tables.dir.categories');
+		global $db;
 
 		$sql = 'SELECT cat_name
-			FROM ' . $categories_table . '
+			FROM ' . DIR_CAT_TABLE . '
 			WHERE cat_id = ' . (int) $cat_id;
 		$result = $db->sql_query($sql);
 		$row = $db->sql_fetchrow($result);

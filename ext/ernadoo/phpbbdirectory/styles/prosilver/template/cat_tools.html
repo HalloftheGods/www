@@ -1,20 +1,15 @@
-{% if not S_IS_BOT and U_WATCH_CAT %}
+<!-- IF not S_IS_BOT and U_WATCH_CAT -->
 	<div class="dropdown-container dropdown-button-control topic-tools">
-		<span title="{{ lang('DIR_CAT_TOOLS') }}" class="button button-secondary dropdown-trigger dropdown-select">
-			<i class="icon fa-wrench fa-fw" aria-hidden="true"></i>
-			<span class="caret"><i class="icon fa-sort-down fa-fw" aria-hidden="true"></i></span>
-		</span>
-		<div class="dropdown">
+		<span title="{L_DIR_CAT_TOOLS}" class="button icon-button tools-icon dropdown-trigger dropdown-select"></span>
+		<div class="dropdown hidden">
 			<div class="pointer"><div class="pointer-inner"></div></div>
 			<ul class="dropdown-contents">
-				{% if U_WATCH_CAT %}
-					<li>
-						<a href="{{ U_WATCH_CAT }}" class="watch-cat-link" title="{{ S_WATCH_CAT_TITLE }}" data-ajax="toggle_link" data-toggle-class="icon {% if S_WATCHING_CAT %}fa-check-square-o{% else %}fa-square-o{% endif %} fa-fw" data-toggle-text="{{ S_WATCH_CAT_TOGGLE }}" data-toggle-url="{{ U_WATCH_CAT_TOGGLE }}" data-update-all=".watch-cat-link">
-							<i class="icon {% if S_WATCHING_CAT %}fa-square-o{% else %}fa-check-square-o{% endif %} fa-fw" aria-hidden="true"></i><span>{{ S_WATCH_CAT_TITLE }}</span>
-						</a>
+				<!-- IF U_WATCH_CAT -->
+					<li class="small-icon icon-<!-- IF S_WATCHING_CAT -->unsubscribe<!-- ELSE -->subscribe<!-- ENDIF -->">
+						<a href="{U_WATCH_CAT}" class="watch-cat-link" title="{S_WATCH_CAT_TITLE}" data-ajax="toggle_link" data-toggle-class="small-icon icon-<!-- IF not S_WATCHING_CAT -->unsubscribe<!-- ELSE -->subscribe<!-- ENDIF -->" data-toggle-text="{S_WATCH_CAT_TOGGLE}" data-toggle-url="{U_WATCH_CAT_TOGGLE}" data-update-all=".watch-cat-link">{S_WATCH_CAT_TITLE}</a>
 					</li>
-				{% endif %}
+				<!-- ENDIF -->
 			</ul>
 		</div>
 	</div>
-{% endif %}
+<!-- ENDIF -->

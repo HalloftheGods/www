@@ -10,81 +10,24 @@
 
 namespace ernadoo\phpbbdirectory\core;
 
-abstract class helper
+class helper
 {
 	/** @var \phpbb\extension\manager */
-	private $extension_manager;
+	protected $extension_manager;
 
 	/** @var \phpbb\path_helper */
-	private $path_helper;
-
-	/** @var string */
-	public $categories_table;
-
-	/** @var string */
-	public $comments_table;
-
-	/** @var string */
-	public $links_table;
-
-	/** @var string */
-	public $votes_table;
-
-	/** @var string */
-	public $watch_table;
-
-	/** @var string */
-	private $ext_name = 'ernadoo/phpbbdirectory';
+	protected $path_helper;
 
 	/**
-	* Set the extension manager
+	* Constructor
 	*
-	* @param \phpbb\extension\manager	$phpbb_extension_manager
-	* @return null
+	* @param \phpbb\extension\manager 		$phpbb_extension_manager	Extension manager helper
+	* @param \phpbb\path_helper				$path_helper				Controller path helper object
 	*/
-	public function set_extension_manager(\phpbb\extension\manager $phpbb_extension_manager)
+	public function __construct(\phpbb\extension\manager $phpbb_extension_manager, \phpbb\path_helper $path_helper)
 	{
 		$this->extension_manager	= $phpbb_extension_manager;
-	}
-
-	/**
-	* Set the path helper
-	*
-	* @param \phpbb\path_helper	$path_helper
-	* @return null
-	*/
-	public function set_path_helper(\phpbb\path_helper $path_helper)
-	{
-		$this->path_helper = $path_helper;
-	}
-
-	/**
-	* Set the tables names
-	*
-	* @param string	$categories_table
-	* @param string	$comments_table
-	* @param string	$links_table
-	* @param string	$votes_table
-	* @param string	$watch_table
-	* @return null
-	*/
-	public function set_tables($categories_table, $comments_table, $links_table, $votes_table, $watch_table)
-	{
-		$this->comments_table		= $comments_table;
-		$this->links_table			= $links_table;
-		$this->votes_table			= $votes_table;
-		$this->watch_table			= $watch_table;
-		$this->categories_table		= $categories_table;
-	}
-	/**
-	* Return ext name
-	*
-	* @param	bool	$web_root_path Whether the path should be relative to web root
-	* @return	string					Path to an extension
-	*/
-	public function get_ext_name($web_root_path = false)
-	{
-		return (($web_root_path) ? $this->path_helper->get_web_root_path() : '') . $this->extension_manager->get_extension_path($this->ext_name);
+		$this->path_helper			= $path_helper;
 	}
 
 	/**
@@ -96,7 +39,10 @@ abstract class helper
 	*/
 	public function get_img_path($type, $image = '')
 	{
-		return $this->get_ext_name(true) . 'images/' . $type . '/' . $image;
+		$web_root_path 	= $this->path_helper->get_web_root_path();
+		$ext_path 		= $this->extension_manager->get_extension_path('ernadoo/phpbbdirectory', false);
+
+		return $web_root_path . $ext_path . 'images/' . $type . '/' . $image;
 	}
 
 	/**
@@ -107,7 +53,10 @@ abstract class helper
 	*/
 	public function get_banner_path($banner = '')
 	{
-		return 'files/' . $this->get_ext_name() . 'banners/' . $banner;
+		$web_root_path 	= $this->path_helper->get_phpbb_root_path();
+		$ext_path 		= $this->extension_manager->get_extension_path('ernadoo/phpbbdirectory', false);
+
+		return $web_root_path . 'files/' . $ext_path . 'banners/' . $banner;
 	}
 
 	/**

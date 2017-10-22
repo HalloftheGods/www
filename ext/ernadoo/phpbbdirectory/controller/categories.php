@@ -10,20 +10,13 @@
 
 namespace ernadoo\phpbbdirectory\controller;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use \ernadoo\phpbbdirectory\core\helper;
-use E1379\SpeakingUrl\SpeakingUrl;
-
-class categories extends helper
+class categories
 {
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
 
 	/** @var \phpbb\config\config */
 	protected $config;
-
-	/** @var \phpbb\language\language */
-	protected $language;
 
 	/** @var \phpbb\template\template */
 	protected $template;
@@ -54,7 +47,6 @@ class categories extends helper
 	*
 	* @param \phpbb\db\driver\driver_interface					$db			Database object
 	* @param \phpbb\config\config								$config		Config object
-	* @param \phpbb\language\language							$language	Language object
 	* @param \phpbb\template\template							$template	Template object
 	* @param \phpbb\user										$user		User object
 	* @param \phpbb\controller\helper							$helper		Controller helper object
@@ -64,11 +56,10 @@ class categories extends helper
 	* @param \ernadoo\phpbbdirectory\core\categorie				$categorie	PhpBB Directory extension categorie object
 	* @param \ernadoo\phpbbdirectory\core\link					$link		PhpBB Directory extension link object
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\language\language $language, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\pagination $pagination, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\link $link)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\pagination $pagination, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\link $link)
 	{
 		$this->db			= $db;
 		$this->config		= $config;
-		$this->language		= $language;
 		$this->template		= $template;
 		$this->user			= $user;
 		$this->helper		= $helper;
@@ -78,10 +69,11 @@ class categories extends helper
 		$this->categorie	= $categorie;
 		$this->link			= $link;
 
-		$language->add_lang('directory', 'ernadoo/phpbbdirectory');
+		$this->user->add_lang_ext('ernadoo/phpbbdirectory', 'directory');
 
-		$template->assign_vars(array(
-			'S_PHPBB_DIRECTORY'	=> true,
+		$this->template->assign_vars(array(
+			'S_PHPBB_DIRECTORY'				=> true,
+			'DIRECTORY_TRANSLATION_INFO'	=> (!empty($user->lang['DIRECTORY_TRANSLATION_INFO'])) ? $user->lang['DIRECTORY_TRANSLATION_INFO'] : '',
 		));
 	}
 
@@ -95,28 +87,7 @@ class categories extends helper
 		$this->categorie->display();
 		$this->link->recents();
 
-		return $this->helper->render('body.html', $this->language->lang('DIRECTORY'));
-	}
-
-	/**
-	* Legacy view controller for display a category
-	* Used with /directory/categorie/{cat_id}
-	* @deprecated 2.0.0 No longer used since dynamic routing.
-	*
-	* @param	int		$cat_id		The category ID
-	* @param	int		$page		Page number taken from the URL
-	* @param	int		$sort_days	Specifies the maximum amount of days a link may be old
-	* @param	string	$sort_key	is the key of $sort_by_sql for the selected sorting: a|t|r|s|v
-	* @param	string	$sort_dir	is either a or d representing ASC and DESC (ascending|descending)
-	* @param	string	$mode		watch|unwatch
-	* @return	\Symfony\Component\HttpFoundation\Response	A Symfony Response object
-	* @throws	\phpbb\exception\http_exception
-	*/
-	public function view($cat_id, $page, $sort_days, $sort_key, $sort_dir, $mode = '')
-	{
-		$url = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id, array('page' => $page, 'sort_days' => $sort_days, 'sort_key' => $sort_key, 'sort_dir' => $sort_dir));
-
-		return new RedirectResponse($url, 301);
+		return $this->helper->render('body.html', $this->user->lang['DIRECTORY']);
 	}
 
 	/**
@@ -131,7 +102,7 @@ class categories extends helper
 	* @return	\Symfony\Component\HttpFoundation\Response	A Symfony Response object
 	* @throws	\phpbb\exception\http_exception
 	*/
-	public function view_route($cat_id, $page = 1, $sort_days = 0, $sort_key = '', $sort_dir = '', $mode = '')
+	public function view($cat_id, $page, $sort_days, $sort_key, $sort_dir, $mode = '')
 	{
 		if (false === $this->categorie->get($cat_id))
 		{
@@ -150,9 +121,15 @@ class categories extends helper
 		$link_list = $rowset = array();
 
 		// Categorie ordering options
-		$limit_days		= array(0 => $this->language->lang('SEE_ALL'), 1 => $this->language->lang('1_DAY'), 7 => $this->language->lang('7_DAYS'), 14 => $this->language->lang('2_WEEKS'), 30 => $this->language->lang('1_MONTH'), 90 => $this->language->lang('3_MONTHS'), 180 => $this->language->lang('6_MONTHS'), 365 => $this->language->lang('1_YEAR'));
-		$sort_by_text	= array('a' => $this->language->lang('AUTHOR'), 't' => $this->language->lang('POST_TIME'), 'r' => $this->language->lang('DIR_COMMENTS_ORDER'), 's' =>  $this->language->lang('DIR_NAME_ORDER'), 'v' => $this->language->lang('DIR_NB_CLICKS_ORDER'));
-		$sort_by_sql	= array('a' => 'u.username_clean', 't' => array('l.link_time', 'l.link_id'), 'r' => 'l.link_comment', 's' => 'LOWER(l.link_name)', 'v' => 'l.link_view');
+		$limit_days		= array(0 => $this->user->lang['SEE_ALL'], 1 => $this->user->lang['1_DAY'], 7 => $this->user->lang['7_DAYS'], 14 => $this->user->lang['2_WEEKS'], 30 => $this->user->lang['1_MONTH'], 90 => $this->user->lang['3_MONTHS'], 180 => $this->user->lang['6_MONTHS'], 365 => $this->user->lang['1_YEAR']);
+		$sort_by_text	= array('a' => $this->user->lang['AUTHOR'], 't' => $this->user->lang['POST_TIME'], 'r' => $this->user->lang['DIR_COMMENTS_ORDER'], 's' =>  $this->user->lang['DIR_NAME_ORDER'], 'v' => $this->user->lang['DIR_NB_CLICKS_ORDER']);
+		$sort_by_sql	= array('a' => 'u.username_clean', 't' => array('l.link_time', 'l.link_id'), 'r' => 'l.link_comment', 's' => 'l.link_name', 'v' => 'l.link_view');
+
+		if ($this->config['dir_activ_pagerank'])
+		{
+			$sort_by_text['p'] = $this->user->lang['DIR_PR_ORDER'];
+			$sort_by_sql['p'] = 'l.link_pagerank';
+		}
 
 		$s_limit_days = $s_sort_key = $s_sort_dir = $u_sort_param = '';
 		gen_sort_selects($limit_days, $sort_by_text, $sort_days, $sort_key, $sort_dir, $s_limit_days, $s_sort_key, $s_sort_dir, $u_sort_param, $default_sort_days, $default_sort_key, $default_sort_dir);
@@ -184,7 +161,7 @@ class categories extends helper
 			$min_post_time = time() - ($sort_days * 86400);
 
 			$sql = 'SELECT COUNT(link_id) AS nb_links
-				FROM ' . $this->links_table . '
+				FROM ' . DIR_LINK_TABLE . '
 				WHERE link_cat = ' . (int) $cat_id . '
 					AND link_time >= ' . $min_post_time;
 			$result = $this->db->sql_query($sql);
@@ -213,27 +190,24 @@ class categories extends helper
 		$this->categorie->make_cat_jumpbox();
 
 		$base_url = array(
-			'routes'	=> 'ernadoo_phpbbdirectory_dynamic_route_' . $cat_id,
+			'routes'	=> 'ernadoo_phpbbdirectory_page_controller',
 			'params'	=> array_merge(array('cat_id' => $cat_id), $u_sort_param),
 		);
 
 		$this->pagination->generate_template_pagination($base_url, 'pagination', 'page', $nb_links, $this->config['dir_show'], $start);
 
 		$this->template->assign_vars(array(
-			'CAT_NAME'				=> $this->categorie->data['cat_name'],
-
 			'S_SELECT_SORT_DIR'		=> $s_sort_dir,
 			'S_SELECT_SORT_KEY'		=> $s_sort_key,
 			'S_SELECT_SORT_DAYS'	=> $s_limit_days,
 			'S_CATLIST'				=> $this->categorie->make_cat_select($cat_id),
-			'S_PAGE_ACTION'			=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id, array('page' => $page)),
+			'S_PAGE_ACTION'			=> $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => $cat_id, 'page' => $page)),
 			'S_CAT_ID'				=> $cat_id,
 
-			'TOTAL_LINKS'			=> $this->language->lang('DIR_NB_LINKS', (int) $nb_links),
+			'TOTAL_LINKS'			=> $this->user->lang('DIR_NB_LINKS', (int) $nb_links),
 
 			'U_NEW_SITE' 			=> $this->helper->route('ernadoo_phpbbdirectory_new_controller', array('cat_id' => $cat_id)),
 
-			'U_VIEW_CAT'			=> $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id),
 			'U_WATCH_CAT'			=> $s_watching_categorie['link'],
 			'U_WATCH_CAT_TOGGLE'	=> $s_watching_categorie['link_toggle'],
 			'S_WATCH_CAT_TITLE'		=> $s_watching_categorie['title'],
@@ -274,7 +248,7 @@ class categories extends helper
 		$sql_array = array(
 			'SELECT'	=> 'l.link_id',
 			'FROM'		=> array(
-					$this->links_table	=> 'l'),
+					DIR_LINK_TABLE	=> 'l'),
 			'LEFT_JOIN'	=> array(
 					array(
 						'FROM'	=> array(USERS_TABLE	=> 'u'),
@@ -300,16 +274,16 @@ class categories extends helper
 		{
 			// We get links, informations about poster, votes and number of comments
 			$sql_array = array(
-				'SELECT'	=> 'l.link_id, l.link_cat, l.link_url, l.link_user_id, l.link_comment, l. link_description, l.link_banner, l.link_rss, l. link_uid, l.link_bitfield, l.link_flags, l.link_vote, l.link_note, l.link_view, l.link_time, l.link_name, l.link_flag, l.link_thumb, u.user_id, u.username, u.user_colour, v.vote_user_id',
+				'SELECT'	=> 'l.link_id, l.link_cat, l.link_url, l.link_user_id, l.link_comment, l. link_description, l.link_banner, l.link_rss, l. link_uid, l.link_bitfield, l.link_flags, l.link_vote, l.link_note, l.link_view, l.link_time, l.link_name, l.link_flag, l.link_pagerank, l.link_thumb, u.user_id, u.username, u.user_colour, v.vote_user_id',
 				'FROM'		=> array(
-						$this->links_table	=> 'l'),
+						DIR_LINK_TABLE	=> 'l'),
 				'LEFT_JOIN'	=> array(
 						array(
 							'FROM'	=> array(USERS_TABLE	=> 'u'),
 							'ON'	=> 'l.link_user_id = u.user_id'
 						),
 						array(
-							'FROM'	=> array($this->votes_table => 'v'),
+							'FROM'	=> array(DIR_VOTE_TABLE => 'v'),
 							'ON'	=> 'l.link_id = v.vote_link_id AND v.vote_user_id = ' . $this->user->data['user_id']
 						)
 				),
@@ -339,20 +313,22 @@ class categories extends helper
 				$s_thumb	= $this->link->display_thumb($site);
 				$s_vote		= $this->link->display_vote($site);
 				$s_banner	= $this->link->display_bann($site);
-				$s_rss		= $this->link->display_rss($site);
+				$s_pr		= $this->link->display_pagerank($site);
+				$s_rss		= $site['link_rss'];
 
 				$edit_allowed 	= ($this->user->data['is_registered'] && ($this->auth->acl_get('m_edit_dir') || ($this->user->data['user_id'] == $site['link_user_id'] && $this->auth->acl_get('u_edit_dir'))));
 				$delete_allowed = ($this->user->data['is_registered'] && ($this->auth->acl_get('m_delete_dir') || ($this->user->data['user_id'] == $site['link_user_id'] && $this->auth->acl_get('u_delete_dir'))));
 
 				$this->template->assign_block_vars('site', array(
 					'BANNER'		=> $s_banner,
-					'COUNT'			=> $this->language->lang('DIR_NB_CLICKS', (int) $site['link_view']),
+					'COUNT'			=> $this->user->lang('DIR_NB_CLICKS', (int) $site['link_view']),
 					'DESCRIPTION' 	=> generate_text_for_display($site['link_description'], $site['link_uid'], $site['link_bitfield'], $site['link_flags']),
 					'LINK_ID'		=> $site['link_id'],
 					'NAME'			=> $site['link_name'],
-					'NB_COMMENT'	=> ($comments_status) ? $this->language->lang('DIR_NB_COMMS', (int) $site['link_comment']) : '',
-					'NB_VOTE'		=> $this->language->lang('DIR_NB_VOTES', (int) $site['link_vote']),
+					'NB_COMMENT'	=> ($comments_status) ? $this->user->lang('DIR_NB_COMMS', (int) $site['link_comment']) : '',
+					'NB_VOTE'		=> $this->user->lang('DIR_NB_VOTES', (int) $site['link_vote']),
 					'NOTE'			=> $s_note,
+					'PAGERANK'		=> $s_pr,
 					'RSS'			=> $s_rss,
 					'TIME'			=> ($site['link_time']) ? $this->user->format_date($site['link_time']) : '',
 					'USER'			=> get_username_string('full', $site['link_user_id'], $site['username'], $site['user_colour']),
@@ -377,7 +353,7 @@ class categories extends helper
 			$this->template->assign_block_vars('no_draw_link', array());
 		}
 
-		$page_title = $this->language->lang('DIRECTORY') . ' - ' . $this->categorie->data['cat_name'];
+		$page_title = $this->user->lang['DIRECTORY'] . ' - ' . $this->categorie->data['cat_name'];
 
 		$this->categorie->display();
 
@@ -402,29 +378,6 @@ class categories extends helper
 		$json_response->send(array(
 			'success'	=> true,
 			'DATE'		=> $this->user->format_date((int) $timestamp),
-		));
-	}
-
-	/**
-	* slug controller for return a slugify category name
-	*
-	* @return	\phpbb\json_response	A Json Response
-	* @throws	\phpbb\exception\http_exception
-	*/
-	public function return_slug()
-	{
-		if (!$this->request->is_ajax())
-		{
-			throw new \phpbb\exception\http_exception(403, 'DIR_ERROR_NOT_AUTH');
-		}
-
-		$slug = new SpeakingUrl();
-		$cat_name = $this->request->variable('cat_name', '', true);
-
-		$json_response = new \phpbb\json_response;
-		$json_response->send(array(
-			'success'	=> true,
-			'SLUG'		=> $slug->getSlug(html_entity_decode($cat_name), array('lang' => $this->config['default_lang'], 'symbols' => true)),
 		));
 	}
 }

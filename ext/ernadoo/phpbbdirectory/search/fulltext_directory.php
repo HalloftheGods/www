@@ -10,9 +10,7 @@
 
 namespace ernadoo\phpbbdirectory\search;
 
-use \ernadoo\phpbbdirectory\core\helper;
-
-class fulltext_directory extends helper
+class fulltext_directory
 {
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
@@ -88,7 +86,7 @@ class fulltext_directory extends helper
 		$sql_array = array(
 			'SELECT'	=> 'l.link_id',
 			'FROM'		=> array(
-					$this->links_table	=> 'l'),
+					DIR_LINK_TABLE	=> 'l'),
 			'WHERE'		=> 'l.link_active = 1
 				' . (($search_query) ? 'AND (' . $search_query . ')' : '') . '
 				' . (sizeof($ex_cid_ary) ? ' AND ' . $this->db->sql_in_set('l.link_cat', $ex_cid_ary, true) : '') . '

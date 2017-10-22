@@ -80,9 +80,27 @@ class directory_website_error_cron extends \phpbb\notification\type\base
 	public function find_users_for_notification($data, $options = array())
 	{
 		$users = array();
-		$users[$data['link_user_id']] = $this->notification_manager->get_default_methods();
 
-		return $this->check_user_notification_options(array_keys($users), $options);
+		$sql = 'SELECT link_user_id
+			FROM ' . DIR_LINK_TABLE . '
+			WHERE link_id = ' . (int) $data['link_id'];
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$users[] = (int) $row['link_user_id'];
+		}
+		$this->db->sql_freeresult($result);
+
+		if (empty($users))
+		{
+			return array();
+		}
+
+		sort($users);
+
+		$notify_users = $this->check_user_notification_options($users, $options);
+
+		return $notify_users;
 	}
 
 	/**
@@ -95,7 +113,7 @@ class directory_website_error_cron extends \phpbb\notification\type\base
 		$link_name = $this->get_data('link_name');
 		$cat_name = $this->get_data('cat_name');
 
-		return $this->language->lang('NOTIFICATION_DIR_WEBSITE_ERROR_CHECK', $link_name, $cat_name);
+		return $this->user->lang('NOTIFICATION_DIR_WEBSITE_ERROR_CHECK', $link_name, $cat_name);
 	}
 
 	/**
@@ -160,7 +178,7 @@ class directory_website_error_cron extends \phpbb\notification\type\base
 		$this->set_data('link_description', $data['link_description']);
 		$this->set_data('next_cron', $data['next_cron']);
 
-		parent::create_insert_array($data, $pre_create_data);
+		return parent::create_insert_array($data, $pre_create_data);
 	}
 
 	/**

@@ -10,11 +10,7 @@
 
 namespace ernadoo\phpbbdirectory\controller;
 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Response;
-use \ernadoo\phpbbdirectory\core\helper;
-
-class links extends helper
+class links
 {
 	private $link_user_id;
 	private $site_name;
@@ -34,9 +30,6 @@ class links extends helper
 
 	/** @var \phpbb\config\config */
 	protected $config;
-
-	/** @var \phpbb\language\language */
-	protected $language;
 
 	/** @var \phpbb\template\template */
 	protected $template;
@@ -62,6 +55,9 @@ class links extends helper
 	/** @var \ernadoo\phpbbdirectory\core\link */
 	protected $link;
 
+	/** @var \ernadoo\phpbbdirectory\core\helper */
+	protected $dir_helper;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -73,7 +69,6 @@ class links extends helper
 	*
 	* @param \phpbb\db\driver\driver_interface 		$db					Database object
 	* @param \phpbb\config\config					$config				Config object
-	* @param \phpbb\language\language				$language			Language object
 	* @param \phpbb\template\template				$template			Template object
 	* @param \phpbb\user							$user				User object
 	* @param \phpbb\controller\helper				$helper				Controller helper object
@@ -82,14 +77,14 @@ class links extends helper
 	* @param \phpbb\captcha\factory					$captcha_factory	Captcha object
 	* @param \ernadoo\phpbbdirectory\core\categorie	$categorie			PhpBB Directory extension categorie object
 	* @param \ernadoo\phpbbdirectory\core\link		$link				PhpBB Directory extension link object
+	* @param \ernadoo\phpbbdirectory\core\helper	$dir_helper			PhpBB Directory extension helper object
 	* @param string									$root_path			phpBB root path
 	* @param string									$php_ext   			phpEx
 	*/
-	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\language\language $language, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\captcha\factory $captcha_factory, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\link $link, $root_path, $php_ext)
+	public function __construct(\phpbb\db\driver\driver_interface $db, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, \phpbb\request\request $request, \phpbb\auth\auth $auth, \phpbb\captcha\factory $captcha_factory, \ernadoo\phpbbdirectory\core\categorie $categorie, \ernadoo\phpbbdirectory\core\link $link, \ernadoo\phpbbdirectory\core\helper $dir_helper, $root_path, $php_ext)
 	{
 		$this->db				= $db;
 		$this->config			= $config;
-		$this->language			= $language;
 		$this->template			= $template;
 		$this->user				= $user;
 		$this->helper			= $helper;
@@ -98,13 +93,15 @@ class links extends helper
 		$this->captcha_factory 	= $captcha_factory;
 		$this->categorie		= $categorie;
 		$this->link				= $link;
+		$this->dir_helper		= $dir_helper;
 		$this->root_path		= $root_path;
 		$this->php_ext			= $php_ext;
 
-		$language->add_lang('directory', 'ernadoo/phpbbdirectory');
+		$this->user->add_lang_ext('ernadoo/phpbbdirectory', 'directory');
 
-		$template->assign_vars(array(
-			'S_PHPBB_DIRECTORY'	=> true,
+		$this->template->assign_vars(array(
+			'S_PHPBB_DIRECTORY'				=> true,
+			'DIRECTORY_TRANSLATION_INFO'	=> (!empty($user->lang['DIRECTORY_TRANSLATION_INFO'])) ? $user->lang['DIRECTORY_TRANSLATION_INFO'] : '',
 		));
 	}
 
@@ -119,12 +116,12 @@ class links extends helper
 	{
 		if ($this->request->is_set_post('cancel'))
 		{
-			$redirect = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
+			$redirect = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
 			redirect($redirect);
 		}
 
 		$sql = 'SELECT link_user_id
-			FROM ' . $this->links_table . '
+			FROM ' . DIR_LINK_TABLE . '
 			WHERE link_id = ' . (int) $link_id;
 		$result = $this->db->sql_query($sql);
 		$link_data = $this->db->sql_fetchrow($result);
@@ -145,9 +142,9 @@ class links extends helper
 		{
 			$this->link->del($cat_id, $link_id);
 
-			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
+			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
 			meta_refresh(3, $meta_info);
-			$message = $this->language->lang('DIR_DELETE_OK') . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_DIR', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_base_controller') . '">', '</a>') . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id) . '">', '</a>');
+			$message = $this->user->lang['DIR_DELETE_OK'] . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_DIR', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_base_controller') . '">', '</a>') . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id)) . '">', '</a>');
 			return $this->helper->message($message);
 		}
 		else
@@ -167,7 +164,7 @@ class links extends helper
 	public function edit_link($cat_id, $link_id)
 	{
 		$sql = 'SELECT link_user_id
-			FROM ' . $this->links_table . '
+			FROM ' . DIR_LINK_TABLE . '
 			WHERE link_id = ' . (int) $link_id;
 		$result = $this->db->sql_query($sql);
 		$link_data = $this->db->sql_fetchrow($result);
@@ -183,7 +180,7 @@ class links extends helper
 		$cat_id		= $this->request->variable('id', $cat_id);
 		$submit		= $this->request->is_set_post('submit') ? true : false;
 		$refresh	= $this->request->is_set_post('refresh_vc') ? true : false;
-		$title		= $this->language->lang('DIR_EDIT_SITE');
+		$title		= $this->user->lang['DIR_EDIT_SITE'];
 
 		$this->template->assign_block_vars('dir_navlinks', array(
 			'FORUM_NAME'	=> $title,
@@ -203,7 +200,7 @@ class links extends helper
 		else
 		{
 			$sql = 'SELECT link_id, link_uid, link_flags, link_bitfield, link_cat, link_url, link_description, link_guest_email, link_name, link_rss, link_back, link_banner, link_flag, link_cat, link_time
-				FROM ' . $this->links_table . '
+				FROM ' . DIR_LINK_TABLE . '
 				WHERE link_id = ' . (int) $link_id;
 			$result = $this->db->sql_query($sql);
 
@@ -254,7 +251,7 @@ class links extends helper
 		$cat_id		= $this->request->variable('id', $cat_id);
 		$submit		= $this->request->is_set_post('submit') ? true : false;
 		$refresh	= $this->request->is_set_post('refresh_vc') ? true : false;
-		$title		= $this->language->lang('DIR_NEW_SITE');
+		$title		= $this->user->lang['DIR_NEW_SITE'];
 
 		$this->template->assign_block_vars('dir_navlinks', array(
 			'FORUM_NAME'	=> $title,
@@ -318,7 +315,7 @@ class links extends helper
 
 		// We check if user had already vot for this website.
 		$sql = 'SELECT vote_link_id
-			FROM ' . $this->votes_table . '
+			FROM ' . DIR_VOTE_TABLE . '
 			WHERE ' . $this->db->sql_build_array('SELECT', $data);
 		$result = $this->db->sql_query($sql);
 		$data = $this->db->sql_fetchrow($result);
@@ -330,9 +327,9 @@ class links extends helper
 
 		$this->link->add_vote($link_id);
 
-		$meta_info = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
+		$meta_info = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
 		meta_refresh(3, $meta_info);
-		$message = $this->language->lang('DIR_VOTE_OK') . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $meta_info . '">', '</a>');
+		$message = $this->user->lang['DIR_VOTE_OK'] . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $meta_info . '">', '</a>');
 		return $this->helper->message($message);
 	}
 
@@ -407,14 +404,14 @@ class links extends helper
 				array('num', '', 1))
 		);
 
-		$this->language->add_lang('ucp');
+		$this->user->add_lang('ucp');
 		$error = validate_data($data, $data2);
-		$error = array_map(array($this->language, 'lang'), $error);
+		$error = preg_replace('#^([A-Z_]+)$#e', "(!empty(\$this->user->lang['\\1'])) ? \$this->user->lang['\\1'] : '\\1'", $error);
 
 		// We check that url have good format
 		if (preg_match('/^(http|https):\/\//si', $this->url) && $this->config['dir_activ_checkurl'] && !$this->link->checkurl($this->url))
 		{
-			$error[] = $this->language->lang('DIR_ERROR_CHECK_URL');
+			$error[] = $this->user->lang['DIR_ERROR_CHECK_URL'];
 		}
 
 		if (!$this->user->data['is_registered'] && $this->config['dir_visual_confirm'])
@@ -427,7 +424,7 @@ class links extends helper
 
 			if ($this->config['dir_visual_confirm_max_attempts'] && $this->captcha->get_attempt_count() > $this->config['dir_visual_confirm_max_attempts'])
 			{
-				$error[] = $this->language->lang('TOO_MANY_ADDS');
+				$error[] = $this->user->lang['TOO_MANY_ADDS'];
 			}
 		}
 
@@ -440,6 +437,9 @@ class links extends helper
 			// Banner
 			$this->link->banner_process($this->banner, $error);
 
+			// PageRank
+			$pagerank = $this->link->pagerank_process($this->url);
+
 			// Thumb ;)
 			$thumb = $this->link->thumb_process($this->url);
 		}
@@ -447,6 +447,9 @@ class links extends helper
 		// Still no errors?? So let's go!
 		if (!$error)
 		{
+			$uid = $bitfield = $flags	= '';
+			generate_text_for_storage($this->description, $uid, $bitfield, $flags, (bool) $this->config['allow_bbcode'], (bool) $this->config['allow_post_links'], (bool) $this->config['allow_smilies']);
+
 			$this->banner	= (!$this->banner && !$this->request->is_set_post('delete_banner')) ? $this->request->variable('old_banner', '') : $this->banner;
 			$this->url		= $this->link->clean_url($this->url);
 
@@ -460,17 +463,13 @@ class links extends helper
 				'link_rss'			=> $this->rss,
 				'link_banner'		=> $this->banner,
 				'link_back'			=> $this->back,
-				'link_uid'			=> '',
-				'link_flags'		=> 7,
+				'link_uid'			=> $uid,
+				'link_flags'		=> $flags,
 				'link_flag'			=> $this->flag,
-				'link_bitfield'		=> '',
+				'link_bitfield'		=> $bitfield,
+				'link_pagerank'		=> (int) $pagerank,
 				'link_thumb'		=> $thumb,
 			);
-
-			if ($this->description)
-			{
-				generate_text_for_storage($data_edit['link_description'], $data_edit['link_uid'], $data_edit['link_bitfield'], $data_edit['link_flags'], (bool) $this->config['allow_bbcode'], (bool) $this->config['allow_post_links'], (bool) $this->config['allow_smilies'], (bool) $this->config['allow_bbcode'], ($this->config['allow_bbcode'] && $this->config['allow_post_flash']), true, (bool) $this->config['allow_post_links']);
-			}
 
 			$need_approval = ($this->categorie->need_approval() && !$this->auth->acl_get('a_') && !$this->auth->acl_get('m_')) ? true : false;
 
@@ -493,10 +492,10 @@ class links extends helper
 				$this->link->add($data_add, $need_approval);
 			}
 
-			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id);
+			$meta_info = $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id));
 			meta_refresh(3, $meta_info);
-			$message	= ($need_approval) ? $this->language->lang('DIR_'.strtoupper($mode).'_SITE_ACTIVE') : $this->language->lang('DIR_'.strtoupper($mode).'_SITE_OK');
-			$message	= $message . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_DIR', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_base_controller') . '">', '</a>') . '<br /><br />' . $this->language->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id) . '">', '</a>');
+			$message	= ($need_approval) ? $this->user->lang['DIR_'.strtoupper($mode).'_SITE_ACTIVE'] : $this->user->lang['DIR_'.strtoupper($mode).'_SITE_OK'];
+			$message	= $message . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_DIR', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_base_controller') . '">', '</a>') . '<br /><br />' . $this->user->lang('DIR_CLICK_RETURN_CAT', '<a href="' . $this->helper->route('ernadoo_phpbbdirectory_page_controller', array('cat_id' => (int) $cat_id)) . '">', '</a>');
 			return $this->helper->message($message);
 		}
 		else
@@ -519,38 +518,89 @@ class links extends helper
 	* Display a banner
 	*
 	* @param	string $banner_img		Path to banner file
-	* @return	Response object
+	* @return	null
 	*/
 	public function return_banner($banner_img)
 	{
-		if (!function_exists('file_gc'))
+		if (!function_exists('phpbb_is_greater_ie_version'))
 		{
-			include($this->root_path . 'includes/functions_download.' . $this->php_ext);
+			include($this->root_path . 'includes/functions_download.'.$this->php_ext);
 		}
 
-		$file_path = $this->get_banner_path($banner_img);
+		$browser = strtolower($this->request->header('User-Agent', 'msie 6.0'));
 
-		if ((@file_exists($file_path) && @is_readable($file_path)))
+		// Adjust image_dir path (no trailing slash)
+		if (substr($banner_img, -1, 1) == '/' || substr($banner_img, -1, 1) == '\\')
 		{
-			$response = new BinaryFileResponse($file_path);
-			$response->setContentDisposition('inline', $banner_img);
+			$banner_img = substr($banner_img, 0, -1) . '/';
+		}
+		$banner_img = str_replace(array('../', '..\\', './', '.\\'), '', $banner_img);
 
-			// Without fileinfo extension, Symfony is unable to guess the mime type
-			if (!extension_loaded('fileinfo'))
+		if ($banner_img && ($banner_img[0] == '/' || $banner_img[0] == '\\'))
+		{
+			$banner_img = '';
+		}
+		$file_path = $this->dir_helper->get_banner_path($banner_img);
+
+		if ((@file_exists($file_path) && @is_readable($file_path)) && !headers_sent())
+		{
+			header('Pragma: public');
+
+			$image_data = @getimagesize($file_path);
+
+			header('Content-Type: ' . image_type_to_mime_type($image_data[2]));
+
+			if ((strpos(strtolower($this->user->browser), 'msie') !== false) && !phpbb_is_greater_ie_version($browser, 7))
 			{
-				$imagesize = new \FastImageSize\FastImageSize();
-				$image_data = $imagesize->getImageSize($file_path);
-				$response->headers->set('Content-Type', image_type_to_mime_type($image_data['type']));
+				header('Content-Disposition: attachment; ' . header_filename($banner_img));
+
+				if (strpos(strtolower($browser), 'msie 6.0') !== false)
+				{
+					header('Expires: -1');
+				}
+				else
+				{
+					header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
+				}
 			}
+			else
+			{
+				header('Content-Disposition: inline; ' . header_filename($banner_img));
+				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
+			}
+
+			$size = @filesize($file_path);
+			if ($size)
+			{
+				header("Content-Length: $size");
+			}
+
+			if (@readfile($file_path) == false)
+			{
+				$fp = @fopen($file_path, 'rb');
+
+				if ($fp !== false)
+				{
+					while (!feof($fp))
+					{
+						// Sorry EPV
+						echo fread($fp, 8192);
+					}
+					fclose($fp);
+				}
+				else
+				{
+					@readfile($file_path);
+				}
+			}
+
+			flush();
 		}
 		else
 		{
-			$response = new Response();
-			$response->setStatusCode(404);
+			header('HTTP/1.0 404 Not Found');
 		}
-		file_gc(false);
-
-		return $response;
+		file_gc();
 	}
 
 	/**
@@ -569,14 +619,14 @@ class links extends helper
 		{
 			$this->s_hidden_fields = array_merge($this->s_hidden_fields, $this->captcha->get_hidden_fields());
 
-			$this->language->add_lang('ucp');
+			$this->user->add_lang('ucp');
 
 			$this->template->assign_vars(array(
 				'CAPTCHA_TEMPLATE'		=> $this->captcha->get_template(),
 			));
 		}
 
-		$this->language->add_lang('posting');
+		$this->user->add_lang('posting');
 
 		if (!function_exists('display_custom_bbcodes'))
 		{
@@ -595,16 +645,16 @@ class links extends helper
 		$s_flag		= $this->config['dir_activ_flag'];
 
 		$this->template->assign_vars(array(
-			'BBCODE_STATUS'			=> ($this->config['allow_bbcode']) 	? $this->language->lang('BBCODE_IS_ON', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>') : $this->language->lang('BBCODE_IS_OFF', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>'),
-			'IMG_STATUS'			=> ($this->config['allow_bbcode'])	? $this->language->lang('IMAGES_ARE_ON') : $this->language->lang('IMAGES_ARE_OFF'),
-			'SMILIES_STATUS'		=> ($this->config['allow_smilies']) ? $this->language->lang('SMILIES_ARE_ON') : $this->language->lang('SMILIES_ARE_OFF'),
-			'URL_STATUS'			=> ($this->config['allow_post_links']) ? $this->language->lang('URL_IS_ON') : $this->language->lang('URL_IS_OFF'),
-			'FLASH_STATUS'			=> ($this->config['allow_bbcode'] && $this->config['allow_post_flash'])	? $this->language->lang('FLASH_IS_ON') : $this->language->lang('FLASH_IS_OFF'),
+			'BBCODE_STATUS'			=> ($this->config['allow_bbcode']) 	? $this->user->lang('BBCODE_IS_ON', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>') : $this->user->lang('BBCODE_IS_OFF', '<a href="' . append_sid($this->root_path."faq.$this->php_ext", 'mode=bbcode') . '">', '</a>'),
+			'IMG_STATUS'			=> ($this->config['allow_bbcode'])	? $this->user->lang['IMAGES_ARE_ON'] : $this->user->lang['IMAGES_ARE_OFF'],
+			'SMILIES_STATUS'		=> ($this->config['allow_smilies']) ? $this->user->lang['SMILIES_ARE_ON'] : $this->user->lang['SMILIES_ARE_OFF'],
+			'URL_STATUS'			=> ($this->config['allow_post_links']) ? $this->user->lang['URL_IS_ON'] : $this->user->lang['URL_IS_OFF'],
+			'FLASH_STATUS'			=> ($this->config['allow_bbcode'] && $this->config['allow_post_flash'])	? $this->user->lang['FLASH_IS_ON'] : $this->user->lang['FLASH_IS_OFF'],
 
 			'L_TITLE'				=> $title,
-			'L_DIR_DESCRIPTION_EXP'	=> $this->language->lang('DIR_DESCRIPTION_EXP', $this->config['dir_length_describe']),
+			'L_DIR_DESCRIPTION_EXP'	=> $this->user->lang('DIR_DESCRIPTION_EXP', $this->config['dir_length_describe']),
 			'L_DIR_SUBMIT_TYPE'		=> $this->categorie->dir_submit_type($this->categorie->need_approval()),
-			'L_DIR_SITE_BANN_EXP'	=> $this->language->lang('DIR_SITE_BANN_EXP', $this->config['dir_banner_width'], $this->config['dir_banner_height']),
+			'L_DIR_SITE_BANN_EXP'	=> $this->user->lang('DIR_SITE_BANN_EXP', $this->config['dir_banner_width'], $this->config['dir_banner_height']),
 
 			'S_GUEST'				=> $s_guest ? true : false,
 			'S_RSS'					=> $s_rss ? true : false,
@@ -618,7 +668,7 @@ class links extends helper
 			'S_LINKS_ALLOWED'		=> (bool) $this->config['allow_post_links'],
 
 			'DIR_FLAG_PATH'			=> $flag_path,
-			'DIR_FLAG_IMAGE'		=> $this->flag ? $this->get_img_path('flags', $this->flag) : '',
+			'DIR_FLAG_IMAGE'		=> $this->flag ? $this->dir_helper->get_img_path('flags', $this->flag) : '',
 
 			'EDIT_MODE'				=> ($mode == 'edit') ? true : false,
 
