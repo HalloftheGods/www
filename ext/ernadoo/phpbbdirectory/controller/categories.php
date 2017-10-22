@@ -105,16 +105,17 @@ class categories extends helper
 	*
 	* @param	int		$cat_id		The category ID
 	* @param	int		$page		Page number taken from the URL
-	* @param	int		$sort_days	Specifies the maximum amount of days a link may be old
-	* @param	string	$sort_key	is the key of $sort_by_sql for the selected sorting: a|t|r|s|v
-	* @param	string	$sort_dir	is either a or d representing ASC and DESC (ascending|descending)
-	* @param	string	$mode		watch|unwatch
 	* @return	\Symfony\Component\HttpFoundation\Response	A Symfony Response object
 	* @throws	\phpbb\exception\http_exception
 	*/
-	public function view($cat_id, $page, $sort_days, $sort_key, $sort_dir, $mode = '')
+	public function view($cat_id, $page)
 	{
-		$url = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id, array('page' => $page, 'sort_days' => $sort_days, 'sort_key' => $sort_key, 'sort_dir' => $sort_dir));
+		if (false === $this->categorie->get($cat_id))
+		{
+			throw new \phpbb\exception\http_exception(404, 'DIR_ERROR_NO_CATS');
+		}
+
+		$url = $this->helper->route('ernadoo_phpbbdirectory_dynamic_route_' . $cat_id, array('page' => $page));
 
 		return new RedirectResponse($url, 301);
 	}
@@ -296,7 +297,7 @@ class categories extends helper
 		}
 		$this->db->sql_freeresult($result);
 
-		if (sizeof($link_list))
+		if (count($link_list))
 		{
 			// We get links, informations about poster, votes and number of comments
 			$sql_array = array(

@@ -189,8 +189,8 @@ class cat extends helper
 			'DIR_CAT_NAME'			=> $this->cat_data['cat_name'],
 			'S_HAS_SUBCATS'			=> ($this->cat_data['right_id'] - $this->cat_data['left_id'] > 1) ? true : false,
 			'S_CATS_LIST'			=> $cat_list,
-			'S_ERROR'				=> (sizeof($this->errors)) ? true : false,
-			'ERROR_MSG'				=> (sizeof($this->errors)) ? implode('<br />', $this->errors) : '')
+			'S_ERROR'				=> (count($this->errors)) ? true : false,
+			'ERROR_MSG'				=> (count($this->errors)) ? implode('<br />', $this->errors) : '')
 		);
 
 		return;
@@ -495,7 +495,7 @@ class cat extends helper
 		$this->db->sql_freeresult($result);
 
 		$this->template->assign_vars(array(
-			'ERROR_MSG'		=> (sizeof($this->errors)) ? implode('<br />', $this->errors) : '',
+			'ERROR_MSG'		=> (count($this->errors)) ? implode('<br />', $this->errors) : '',
 			'NAVIGATION'	=> $navigation,
 			'CAT_BOX'		=> $cat_box,
 			'U_SEL_ACTION'	=> $this->u_action,
@@ -528,6 +528,7 @@ class cat extends helper
 		{
 			$this->update = false;
 			$this->errors[] = $this->language->lang('FORM_INVALID');
+			return;
 		}
 
 		switch ($this->action)
@@ -547,14 +548,7 @@ class cat extends helper
 					trigger_error($e->getMessage(), E_USER_WARNING);
 				}
 
-				if (sizeof($this->errors))
-				{
-					break;
-				}
-
-				$this->cache->destroy('sql', $this->categories_table);
-
-				trigger_error($this->language->lang('DIR_CAT_DELETED') . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
+				$message = 'DIR_CAT_DELETED';
 
 				break;
 
@@ -602,20 +596,18 @@ class cat extends helper
 					trigger_error($e->getMessage(), E_USER_WARNING);
 				}
 
-				if (!sizeof($this->errors))
-				{
-					$this->cache->destroy('sql', $this->categories_table);
-
-					$message = ($this->action == 'add') ? $this->language->lang('DIR_CAT_CREATED') : $this->language->lang('DIR_CAT_UPDATED');
-
-					trigger_error($message . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
-				}
+				$message = ($this->action == 'add') ? 'DIR_CAT_CREATED' : 'DIR_CAT_UPDATED';
 
 			break;
 		}
 
-		// Purge the cache to refresh route collections
-		$this->cache->purge();
+		if (!count($this->errors))
+		{
+			// Purge the cache to refresh route collections
+			$this->cache->purge();
+
+			trigger_error($this->language->lang($message) . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
+		}
 	}
 
 	/**
@@ -689,7 +681,7 @@ class cat extends helper
 
 		$this->template->assign_vars(array(
 			'S_EDIT_CAT'		=> true,
-			'S_ERROR'			=> (sizeof($this->errors)) ? true : false,
+			'S_ERROR'			=> (count($this->errors)) ? true : false,
 			'S_CAT_PARENT_ID'	=> $this->cat_data['parent_id'],
 			'S_ADD_ACTION'		=> ($this->action == 'add') ? true : false,
 
@@ -697,7 +689,7 @@ class cat extends helper
 			'U_EDIT_ACTION'		=> $this->u_action . "&amp;parent_id={$this->parent_id}&amp;action=$this->action&amp;c=$this->cat_id",
 
 			'L_TITLE'					=> $this->language->lang('DIR_' . strtoupper($this->action) . '_CAT'),
-			'ERROR_MSG'					=> (sizeof($this->errors)) ? implode('<br />', $this->errors) : '',
+			'ERROR_MSG'					=> (count($this->errors)) ? implode('<br />', $this->errors) : '',
 			'ICON_IMAGE'				=> ($this->cat_data['cat_icon']) ? $this->get_img_path('icons', $this->cat_data['cat_icon']) : 'images/spacer.gif',
 
 			'DIR_ICON_PATH'				=> $this->get_img_path('icons'),
@@ -784,7 +776,7 @@ class cat extends helper
 		// What are we going to do tonight Brain? The same thing we do everynight,
 		// try to take over the world ... or decide whether to continue update
 		// and if so, whether it's a new cat/link or an existing one
-		if (sizeof($this->errors))
+		if (count($this->errors))
 		{
 			return $this->errors;
 		}
@@ -856,11 +848,11 @@ class cat extends helper
 	/**
 	* Remove complete category
 	*
-	* @param	string	$action_links	Action for categories links
-	* @param	string	$action_subcats	Action for sub-categories
-	* @param	int		$links_to_id	New category ID for links
-	* @param	int		$subcats_to_id	New category ID for sub-categories
-	* @return 	array
+	* @param	string		$action_links	Action for categories links
+	* @param	string		$action_subcats	Action for sub-categories
+	* @param	int			$links_to_id	New category ID for links
+	* @param	int			$subcats_to_id	New category ID for sub-categories
+	* @return 	array|null
 	*/
 	private function _delete_cat($action_links = 'delete', $action_subcats = 'delete', $links_to_id = 0, $subcats_to_id = 0)
 	{
@@ -871,7 +863,7 @@ class cat extends helper
 		if ($action_links == 'delete')
 		{
 			$log_action_links = 'LINKS';
-			$this->errors = array_merge($this->errors, $this->_delete_cat_content());
+			$this->_delete_cat_content();
 		}
 		else if ($action_links == 'move')
 		{
@@ -902,7 +894,7 @@ class cat extends helper
 			}
 		}
 
-		if (sizeof($this->errors))
+		if (count($this->errors))
 		{
 			return $this->errors;
 		}
@@ -926,7 +918,7 @@ class cat extends helper
 			}
 		}
 
-		if (sizeof($this->errors))
+		if (count($this->errors))
 		{
 			return $this->errors;
 		}
@@ -973,8 +965,6 @@ class cat extends helper
 				$this->phpbb_log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_DIR_CAT_DEL_CAT', time(), array($this->cat_data['cat_name']));
 			break;
 		}
-
-		return $this->errors;
 	}
 
 	/**
@@ -1001,7 +991,7 @@ class cat extends helper
 	/**
 	* Delete category content
 	*
-	* @return array
+	* @return null
 	*/
 	private function _delete_cat_content()
 	{
@@ -1030,7 +1020,7 @@ class cat extends helper
 		}
 		$this->db->sql_freeresult($result);
 
-		if (sizeof($link_ids))
+		if (count($link_ids))
 		{
 			// Delete links datas
 			$link_datas_ary = array(
@@ -1056,8 +1046,6 @@ class cat extends helper
 		}
 
 		$this->db->sql_transaction('commit');
-
-		return array();
 	}
 
 	/**

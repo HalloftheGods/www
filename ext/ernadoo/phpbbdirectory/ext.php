@@ -66,14 +66,10 @@ class ext extends \phpbb\extension\base
 
 			default:
 
-
 				if (!class_exists('\E1379\SpeakingUrl\SpeakingUrl'))
 				{
-            echo "RUN ME";
 					// When migration is executed, phpBB doesn't know yet extension dependencies, so we need to manually include autoload file
 					require($this->extension_path. 'vendor/autoload.php');
-            echo 'required ran';
-            echo (class_exists('\E1379\SpeakingUrl\SpeakingUrl')) ? 'true' : 'false';
 				}
 
 				// Run parent enable step method
