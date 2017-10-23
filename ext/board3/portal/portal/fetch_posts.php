@@ -133,6 +133,7 @@ class fetch_posts
 	*/
 	public function get_posts($forum_from, $permissions, $number_of_posts, $text_length, $time, $type, $start = 0, $invert = false)
 	{
+    $time = (int) $time;
 		$posts = array();
 		$post_time = $this->get_setting_based_data($time == 0, '', 'AND t.topic_time > ' . (time() - $time * 86400));
 		$forum_from = $this->get_setting_based_data(strpos($forum_from, ',') !== false, explode(',', $forum_from), $this->get_setting_based_data($forum_from != '', array($forum_from), array()));
