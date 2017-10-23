@@ -1,0 +1,32 @@
+{
+    "name": "hifikabin/timezoneclock",
+    "type": "phpbb-extension",
+    "description": "Adds six timezones on the index page under your forums Overall Header",
+    "homepage": "http://phpbb.hifikabin.me.uk",
+    "version": "1.0.2",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "James Newcombe",
+            "username": "HiFiKabin",
+            "email": "webmaster@hifikabin.me.uk",
+            "homepage": "http://phpbb.hifikabin.me.uk",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "phpbb/phpbb": ">=3.1.0"
+    },
+    "extra": {
+        "display-name": "Timezone Clock",
+        "soft-require": {
+            "phpbb/phpbb": ">=3.1.0"
+        },
+        "version-check": {
+            "host": "www.phpbb.com",
+            "directory": "/customise/db/extension/timezone_clock",
+            "filename": "version_check"
+        }
+    }
+}

@@ -1,0 +1,7 @@
+services:
+    hifikabin.timezoneclock.listener:
+        class: hifikabin\timezoneclock\event\listener
+        arguments:
+            - '@user'
+        tags:
+            - { name: event.listener }

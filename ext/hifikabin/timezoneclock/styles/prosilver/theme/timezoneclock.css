@@ -1,0 +1,29 @@
+.table {
+    display: table;
+	margin: 0 auto;
+}
+ul#horizontal-list {
+	min-width: 696px;
+	list-style: none;
+}
+ul#horizontal-list li {
+	display: inline;
+}
+.jcgmt-container {
+	float:left;
+}
+.jcgmt-container .jcgmt-lbl {
+	font-size:12px;
+	font-weight:bold;
+	color: #105289;
+	line-height: 18px;
+	text-align: center;
+	width: 120px;
+	margin: 0 auto;
+}
+.jcgmt-digital,
+.jcgmt-date {
+	font-size: 10px;
+	color: #105289;
+	text-align:center;
+}
