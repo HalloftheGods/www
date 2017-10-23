@@ -270,7 +270,7 @@ class listener implements EventSubscriberInterface
 			{
 				if (($bmonth == $date[0] && $bday > $date[1]) || ($bmonth == $date[2] && $bday < $date[3]))
 				{
-					$image = $this->root_path . $this->images_path . $sign . '.png';
+					$image = $this->root_path . $this->images_path . ucwords($sign) . '.png';
 					$title = $this->user->lang(strtoupper($sign));
 					return "{$title} <img src='$image' alt='$title' title='$title' style='vertical-align:middle;' />";
 				}
