@@ -7,7 +7,9 @@
 				{% spaceless %}
 				<span class="crumb">
 					<a href="{{ U_SITE_HOME }}" data-navbar-reference="home">
-						<i class="icon fa-home fa-fw" aria-hidden="true"></i><span>{{ lang('SITE_HOME') }}</span>
+						<!-- <i class="icon fa-home fa-fw" aria-hidden="true"></i> -->
+            <img src="/favicon.png" align="absmiddle"/>
+            <span>{{ lang('SITE_HOME') }}</span>
 					</a>
 				</span>
 				{% endspaceless %}
@@ -16,7 +18,11 @@
 			{% spaceless %}
 			<span class="crumb">
 				<a href="{{ U_INDEX }}" data-navbar-reference="index">
-					{% if not U_SITE_HOME %}<i class="icon fa-home fa-fw" aria-hidden="true"></i>{% endif %}<span>{{ lang('INDEX') }}</span>
+					{% if not U_SITE_HOME %}
+          <!-- <i class="icon fa-home fa-fw" aria-hidden="true"></i> -->
+
+          <img src="/favicon.png" align="absmiddle"/>
+          {% endif %}<span>{{ lang('INDEX') }}</span>
 				</a>
 			</span>
 			{% endspaceless %}

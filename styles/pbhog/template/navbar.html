@@ -11,7 +11,10 @@
           <span itemprop="title">{{ lang('SITE_HOME') }}</span></a></span>
 			{% endif %}
 			{% EVENT overall_header_breadcrumb_prepend %}
-			<span class="crumb" {{ definition.MICRODATA }}><a href="{{ U_INDEX }}" itemprop="url" accesskey="h" data-navbar-reference="index">{% if not U_SITE_HOME %}<i class="icon fa-home fa-fw"></i>{% endif %}<span itemprop="title">{{ lang('INDEX') }}</span></a></span>
+			<span class="crumb" {{ definition.MICRODATA }}><a href="{{ U_INDEX }}" itemprop="url" accesskey="h" data-navbar-reference="index">{% if not U_SITE_HOME %}
+          <!-- <i class="icon fa-home fa-fw"></i> -->
+          <img src="/favicon.png" align="absmiddle"/>
+          {% endif %}<span itemprop="title">{{ lang('INDEX') }}</span></a></span>
 
 			{% for navlinks in loops.navlinks %}
 			{% EVENT overall_header_navlink_prepend %}
