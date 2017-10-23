@@ -272,7 +272,7 @@ class listener implements EventSubscriberInterface
 				{
 					$image = $this->root_path . $this->images_path . $sign . '.png';
 					$title = $this->user->lang(strtoupper($sign));
-					return "<img src='$image' alt='$title' title='$title' style='vertical-align:middle;' />";
+					return "{$title} <img src='$image' alt='$title' title='$title' style='vertical-align:middle;' />";
 				}
 			}
 		}
