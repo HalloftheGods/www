@@ -19,7 +19,8 @@ if (!defined('IN_PHPBB'))
 {
 	exit;
 }
-
+error_reporting(0);
+ 
 require($phpbb_root_path . 'includes/startup.' . $phpEx);
 require($phpbb_root_path . 'phpbb/class_loader.' . $phpEx);
 
