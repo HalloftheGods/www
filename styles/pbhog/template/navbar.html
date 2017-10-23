@@ -5,7 +5,10 @@
 
 		<li class="breadcrumbs">
 			{% if U_SITE_HOME %}
-			<span class="crumb" {{ definition.MICRODATA }}><a href="{{ U_SITE_HOME }}" itemprop="url" data-navbar-reference="home"><i class="icon fa-home fa-fw" aria-hidden="true"></i><span itemprop="title">{{ lang('SITE_HOME') }}</span></a></span>
+			<span class="crumb" {{ definition.MICRODATA }}><a href="{{ U_SITE_HOME }}" itemprop="url" data-navbar-reference="home">
+          <img src="/favicon.png" align="absmiddle"/>
+          <!-- <i class="icon fa-home fa-fw" aria-hidden="true"></i> -->
+          <span itemprop="title">{{ lang('SITE_HOME') }}</span></a></span>
 			{% endif %}
 			{% EVENT overall_header_breadcrumb_prepend %}
 			<span class="crumb" {{ definition.MICRODATA }}><a href="{{ U_INDEX }}" itemprop="url" accesskey="h" data-navbar-reference="index">{% if not U_SITE_HOME %}<i class="icon fa-home fa-fw"></i>{% endif %}<span itemprop="title">{{ lang('INDEX') }}</span></a></span>
