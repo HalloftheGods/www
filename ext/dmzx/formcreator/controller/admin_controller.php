@@ -329,7 +329,7 @@ class admin_controller
 		return($row);
 	}
 
-	function build_preview($form_id, $form_id)
+	function build_preview($form_id, $forum_id)
 	{
 		$sql = 'SELECT id, form_id, ndx_order, name, hint, type, mandatory, options, forum_name, forum_id
 			FROM ' . $this->table_formcreator . ' m, ' . FORUMS_TABLE . " f
