@@ -78,7 +78,8 @@ class points_main
 		$points_values_table,
 		$points_log_table,
 		$points_lottery_tickets_table,
-		$points_lottery_history_table)
+		$points_lottery_history_table
+	)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;

@@ -38,8 +38,8 @@ class functions_points
 	/** @var \phpbb\config\config */
 	protected $config;
 
-	/** @var \phpbb\pagination */
-	protected $pagination;
+	/** @var manager */
+	protected $extension_manager;
 
 	/** @var string */
 	protected $php_ext;
@@ -74,7 +74,7 @@ class functions_points
 	* @param \phpbb\cache\service		 		$cache
 	* @param \phpbb\request\request		 		$request
 	* @param \phpbb\config\config				$config
-	* @param \phpbb\pagination					$pagination
+	* @param \phpbb\extension\manager 			$extension_manager
 	* @param string								$php_ext
 	* @param string								$root_path
 	* @param string 							$points_bank_table
@@ -94,14 +94,15 @@ class functions_points
 		\phpbb\cache\service $cache,
 		\phpbb\request\request $request,
 		\phpbb\config\config $config,
-		\phpbb\pagination $pagination,
+		\phpbb\extension\manager $extension_manager,
 		$php_ext,
 		$root_path,
 		$points_bank_table,
 		$points_config_table,
 		$points_lottery_history_table,
 		$points_lottery_tickets_table,
-		$points_values_table)
+		$points_values_table
+	)
 	{
 		$this->template 						= $template;
 		$this->user 							= $user;
@@ -112,7 +113,7 @@ class functions_points
 		$this->cache 							= $cache;
 		$this->request 							= $request;
 		$this->config 							= $config;
-		$this->pagination 						= $pagination;
+		$this->extension_manager				= $extension_manager;
 		$this->php_ext 							= $php_ext;
 		$this->root_path 						= $root_path;
 		$this->points_bank_table 				= $points_bank_table;
@@ -131,6 +132,7 @@ class functions_points
 		$new_text = '';
 		$text = explode('[quote', $text);
 		$new_text .= $text[0]; //1st frame is always valid text
+
 		for ($i = 1, $size = sizeof($text); $i < $size; $i++)
 		{
 			if (stristr($text[$i], '[/quote') === false) //checkout if it's a double/triple and so on quote
@@ -148,6 +150,7 @@ class functions_points
 		$new_text = '';
 		$text = explode('[code', $text);
 		$new_text .= $text[0]; //1st frame is always valid text
+
 		for ($i = 1, $size = sizeof($text); $i < $size; $i++)
 		{
 			if (stristr($text[$i], '[/code') === false) //checkout if it's a double/triple and so on code
@@ -165,6 +168,7 @@ class functions_points
 		$new_text = '';
 		$text = explode('[url', $text);
 		$new_text .= $text[0]; //1st frame is always valid text
+
 		for ($i = 1, $size = sizeof($text); $i < $size; $i++)
 		{
 			if (stristr($text[$i], '[/url') === false) //checkout if it's a double/triple and so on url
@@ -181,6 +185,7 @@ class functions_points
 		$new_text = '';
 		$text = explode('[', $text);
 		$new_text .= $text[0]; //1st frame is always valid text
+
 		for ($i = 1, $size = sizeof($text); $i < $size; $i++)
 		{
 			$item = explode(']' , $text[$i]);
@@ -193,6 +198,7 @@ class functions_points
 
 		//BEGIN to remove extra spaces
 		$new_text = explode(' ', $new_text);
+
 		for ($i = 0, $size = sizeof($new_text); $i < $size; $i++)
 		{
 			if (trim($new_text[$i]) == '' || trim($new_text[$i]) == '&nbsp;')
@@ -369,6 +375,7 @@ class functions_points
 
 		// Select a random user from tickets table
 		$sql_layer = $this->db->get_sql_layer();
+
 		switch ($sql_layer)
 		{
 			case 'postgres':
@@ -631,6 +638,7 @@ class functions_points
 		$sql = 'SELECT config_name, config_value
 				FROM ' . $this->points_config_table;
 		$result = $this->db->sql_query($sql);
+
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$points_config[$row['config_name']] = $row['config_value'];
@@ -718,5 +726,27 @@ class functions_points
 			// Add logs
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_MOD_POINTS_RANDOM', false, array($points_user['username']));
 		}
+	}
+
+	function assign_authors()
+	{
+		$md_manager = $this->extension_manager->create_extension_metadata_manager('dmzx/ultimatepoints', $this->template);
+		$meta = $md_manager->get_metadata();
+
+		$author_names = array();
+		$author_homepages = array();
+
+		foreach (array_slice($meta['authors'], 0, 2) as $author)
+		{
+			$author_names[] = $author['name'];
+			$author_homepages[] = sprintf('<a href="%1$s" title="%2$s">%2$s</a>', $author['homepage'], $author['name']);
+		}
+		$this->template->assign_vars(array(
+			'ULTIMATEPOINTS_DISPLAY_NAME'		=> $meta['extra']['display-name'],
+			'ULTIMATEPOINTS_AUTHOR_NAMES'		=> implode(' &amp; ', $author_names),
+			'ULTIMATEPOINTS_AUTHOR_HOMEPAGES'	=> implode(' &amp; ', $author_homepages),
+			'ULTIMATEPOINTS_VERSION'			=> $this->config['ultimate_points_version'],
+		));
+		return;
 	}
 }

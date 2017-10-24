@@ -12,17 +12,21 @@ namespace dmzx\ultimatepoints\ucp;
 class ucp_ultimatepoints_module
 {
 	public $u_action;
+
 	function main($id, $mode)
 	{
-		global $phpbb_container, $config;
+		global $phpbb_container, $config, $template;
 
 		$this->points_lottery_history_table = $phpbb_container->getParameter('dmzx.ultimatepoints.table.points.lottery.history');
 		$this->points_bank_table 			= $phpbb_container->getParameter('dmzx.ultimatepoints.table.points.bank');
 		$this->points_log_table 			= $phpbb_container->getParameter('dmzx.ultimatepoints.table.points.log');
 		$this->points_config_table 			= $phpbb_container->getParameter('dmzx.ultimatepoints.table.points.config');
 		$this->points_values_table 			= $phpbb_container->getParameter('dmzx.ultimatepoints.table.points.values');
+		$this->functions_points 			= $phpbb_container->get('dmzx.ultimatepoints.core.functions.points');
 
 		$points_config = $this->config_info();
+
+		$this->functions_points->assign_authors();
 
 		if ($config['points_enable'])
 		{
@@ -49,6 +53,8 @@ class ucp_ultimatepoints_module
 		{
 			trigger_error($points_config['points_disablemsg']);
 		}
+
+		$template->assign_var('ULTIMATEPOINTS_FOOTER_VIEW', true);
 	}
 
 	public function lottery_info()

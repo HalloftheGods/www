@@ -3,8 +3,8 @@
 	"type": "phpbb-extension",
 	"description": "The Ultimate Points is an addition to your phpBB3 forum, where people can gain points and also are able to spend points, of course.",
 	"homepage": "http://www.dmzx-web.net",
-	"version": "1.1.6",
-	"time": "2016-10-15",
+	"version": "1.1.8",
+	"time": "2017-01-22",
 	"keywords": ["phpbb", "extension", "ultimatepoints"],
 	"license": "GPL-2.0",
 	"authors": [
@@ -16,7 +16,7 @@
 		},
 		{
 			"name": "posey",
-			"homepage": "http://www.godfathertalks.com",
+			"homepage": "http://www.dmzx-web.net",
 			"email": "admin@godfathertalks.com",
 			"role": "Extension Developer"
 		},
@@ -45,12 +45,12 @@
 	"extra": {
 		"display-name": "Ultimate Points Extension",
 		"soft-require": {
-			"phpbb/phpbb": ">=3.1.0,<3.3.0@dev"
+			"phpbb/phpbb": ">=3.2.0,<3.3"
 		},
 		"version-check": {
 			"host": "www.dmzx-web.net",
 			"directory": "/versions",
-			"filename": "ultimatepoints_version.json"
+			"filename": "ultimatepoints_32x_version.json"
 		}
 	}
 }

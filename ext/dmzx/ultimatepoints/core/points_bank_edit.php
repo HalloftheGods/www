@@ -78,7 +78,8 @@ class points_bank_edit
 		\phpbb\log\log $log,
 		$php_ext,
 		$root_path,
-		$points_bank_table)
+		$points_bank_table
+	)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;
@@ -126,6 +127,7 @@ class points_bank_edit
 			$this->template->assign_block_vars('administer_bank', array());
 
 			$submit = (isset($_POST['submit'])) ? true : false;
+
 			if ($submit)
 			{
 				if (!check_form_key('bank_edit'))
