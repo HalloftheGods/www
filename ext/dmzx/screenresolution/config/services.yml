@@ -1,0 +1,10 @@
+services:
+    dmzx.screenresolution.listener:
+        class: dmzx\screenresolution\event\listener
+        arguments:
+            - @request
+            - @dbal.conn
+            - @user
+            - @template
+        tags:
+            - { name: event.listener }
