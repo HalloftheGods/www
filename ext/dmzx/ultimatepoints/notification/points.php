@@ -8,31 +8,37 @@
 */
 
 namespace dmzx\ultimatepoints\notification;
-use phpbb\notification\type\base;
-use phpbb\controller\helper;
-/**
- * phpBB points Notification class.
- */
-class points extends base
-{
-	/**
-	 * @var \phpbb\user_loader
-	 */
-	protected $user_loader;
 
-	/**
-	* @var helper
-	*/
+/**
+* @package Ultimate Points
+*/
+
+class points extends \phpbb\notification\type\base
+{
+	/** @var \phpbb\controller\helper */
 	protected $helper;
 
-	public function set_user_loader(\phpbb\user_loader $user_loader)
-	{
-		$this->user_loader = $user_loader;
-	}
-
-	public function set_helper(helper $helper)
+	/**
+	* Notification Type Points Constructor
+	*
+	* @param \phpbb\user_loader 					$user_loader
+	* @param \phpbb\db\driver\driver_interface 		$db
+	* @param \phpbb\cache\driver\driver_interface 	$cache
+	* @param \phpbb\user 							$user
+	* @param \phpbb\auth\auth 						$auth
+	* @param \phpbb\config\config 					$config
+	* @param \phpbb\controller\helper 				$helper
+	* @param string 								$root_path
+	* @param string 								$php_ext
+	* @param string 								$notification_types_table
+	* @param string 								$notifications_table
+	* @param string 								$user_notifications_table
+	* @return \phpbb\notification\type\base
+	*/
+	public function __construct(\phpbb\user_loader $user_loader, \phpbb\db\driver\driver_interface $db, \phpbb\cache\driver\driver_interface $cache, $user, \phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\controller\helper $helper, $root_path, $php_ext, $notification_types_table, $notifications_table, $user_notifications_table)
 	{
 		$this->helper = $helper;
+		parent::__construct($user_loader, $db, $cache, $user, $auth, $config, $root_path, $php_ext, $notification_types_table, $notifications_table, $user_notifications_table);
 	}
 
 	/**
@@ -179,6 +185,6 @@ class points extends base
 		$this->set_data('receiver', $data['receiver']);
 		$this->set_data('mode', $data['mode']);
 
-		parent::create_insert_array($data, $pre_create_data);
+		return parent::create_insert_array($data, $pre_create_data);
 	}
 }

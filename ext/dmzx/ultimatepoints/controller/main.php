@@ -134,8 +134,7 @@ class main
 		$root_path,
 		$php_ext,
 		$points_config_table,
-		$points_values_table
-	)
+		$points_values_table)
 	{
 		$this->functions_points 	= $functions_points;
 		$this->points_main			= $points_main;
@@ -170,8 +169,6 @@ class main
 		include($this->root_path . 'includes/functions_privmsgs.' . $this->php_ext);
 
 		$mode = $this->request->variable('mode', '');
-
-		$this->functions_points->assign_authors();
 
 		// Get all configs
 		$points_config = $this->functions_points->points_all_configs();
@@ -236,8 +233,6 @@ class main
 			'U_USE_BANK'		=> $this->auth->acl_get('u_use_bank'),
 			'U_USE_ROBBERY'		=> $this->auth->acl_get('u_use_robbery'),
 		)));
-
-		$this->template->assign_var('ULTIMATEPOINTS_FOOTER_VIEW', true);
 
 		switch ($mode)
 		{

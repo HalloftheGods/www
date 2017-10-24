@@ -82,8 +82,7 @@ class points_logs
 		$php_ext,
 		$root_path,
 		$points_log_table,
-		$points_values_table
-	)
+		$points_values_table)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;

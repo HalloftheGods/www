@@ -98,8 +98,7 @@ class listener implements EventSubscriberInterface
 		$points_bank_table,
 		$points_config_table,
 		$points_values_table,
-		\phpbb\files\factory $files_factory = null
-	)
+		\phpbb\files\factory $files_factory = null)
 	{
 		$this->functions_points 	= $functions_points;
 		$this->user					= $user;

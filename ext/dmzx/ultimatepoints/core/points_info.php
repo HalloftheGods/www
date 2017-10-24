@@ -63,8 +63,7 @@ class points_info
 		\phpbb\config\config $config,
 		\phpbb\controller\helper $helper,
 		$root_path,
-		$points_values_table
-	)
+		$points_values_table)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;

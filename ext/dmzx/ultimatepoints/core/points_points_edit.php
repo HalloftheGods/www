@@ -70,8 +70,7 @@ class points_points_edit
 		\phpbb\log\log $log,
 		\phpbb\request\request $request,
 		$php_ext,
-		$root_path
-	)
+		$root_path)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;

@@ -29,7 +29,7 @@
 			</div>
 		</div>
 		<div class="panel bg1 points-main-lists">
-			<div class="inner" style="width: 200px;">
+			<div class="inner">
 				<h3>{L_MAIN_LOTTERIES_WON}</h3>
 				<!-- BEGIN lotteries_won -->
 					<span class="column1">{lotteries_won.USER}</span>
@@ -41,7 +41,7 @@
 			</div>
 		</div>
 		<div class="panel bg1 points-main-lists">
-			<div class="inner" style="width: 200px;">
+			<div class="inner">
 				<h3>{L_MAIN_MOST_DONATED}</h3>
 				<!-- BEGIN most_donated -->
 					<span class="column1">{most_donated.USER}</span>
@@ -53,7 +53,7 @@
 			</div>
 		</div>
 		<div class="panel bg1 points-main-lists">
-			<div class="inner" style="width: 200px;">
+			<div class="inner">
 				<h3>{L_MAIN_RICH_BANK}</h3>
 				<!-- BEGIN richest_banker -->
 					<span class="column1">{richest_banker.USER}</span>
@@ -65,20 +65,22 @@
 			</div>
 		</div>
 		<div class="panel bg1 points-main-lists">
-			<div class="inner" style="width: 200px;">
+			<div class="inner">
 				<h3>{L_POINTS_MOST_RICH_USERS}</h3>
-				<!-- IF S_DISPLAY_INDEX -->
-					<!-- BEGIN points -->
-						<span class="column1">{points.USERNAME}</span>
-						<span class="column2">{points.POINT}</span>
-						<br style="clear: both" />
-					<!-- END points -->
-				<!-- ELSE -->
-						<span>{L_POINTS_MOST_RICH_USERS_DISABLED}</span>
-				<!-- ENDIF -->
+					<!-- IF S_DISPLAY_INDEX -->
+						<!-- BEGIN points -->
+							<span class="column1">{points.USERNAME}</span>
+							<span class="column2">{points.POINT}</span>
+							<br style="clear: both" />
+						<!-- END points -->
+					<!-- ELSE -->
+							<span>{L_POINTS_MOST_RICH_USERS_DISABLED}</span>
+					<!-- ENDIF -->
 			</div>
 		</div>
 	</div>
 </div>
+
+<br /><div style="text-align: center;" class="copyright">{L_POINTS_COPYRIGHT}{POINT_VERS}<br />{L_POINTS_COPYRIGHTS}</div>
 
 <!-- INCLUDE overall_footer.html -->

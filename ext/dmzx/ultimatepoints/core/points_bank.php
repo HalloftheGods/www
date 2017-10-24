@@ -90,8 +90,7 @@ class points_bank
 		$root_path,
 		$points_bank_table,
 		$points_config_table,
-		$points_values_table
-	)
+		$points_values_table)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;
