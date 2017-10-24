@@ -1,0 +1,35 @@
+{
+	"name": "dmzx/livetimeclock",
+	"type": "phpbb-extension",
+	"description": "Will add live time clock",
+	"homepage": "http://www.dmzx-web.net",
+	"version": "1.0.0",
+	"time": "2015-12-28",
+	"keywords": ["phpbb", "extension", "Live time clock"],
+	"license": "GPL-2.0",
+	"authors": [
+		{
+			"name": "dmzx",
+			"homepage": "http://www.dmzx-web.net",
+			"email": "info@dmzx-web.net",
+			"role": "Extension Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4"
+	},
+	"require-dev": {
+		"phpbb/epv": "dev-master"
+	},
+	"extra": {
+		"display-name": "Live time clock",
+		"soft-require": {
+			"phpbb/phpbb": "3.2.*"
+		}
+	},
+	"version-check": {
+		"host": "www.dmzx-web.net",
+		"directory": "/versions",
+		"filename": "livetimeclock_32x_version.json"
+	}
+}

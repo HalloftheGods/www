@@ -1,0 +1,35 @@
+{
+	"name": "dmzx/systeminfo",
+	"type": "phpbb-extension",
+	"description": "Displays System Info on the boards index page.",
+	"homepage": "http://www.dmzx-web.net",
+	"version": "1.0.0",
+	"time": "2015-12-26",
+	"keywords": ["phpbb", "extension", "system info"],
+	"license": "GPL-2.0",
+	"authors": [
+		{
+			"name": "dmzx",
+			"homepage": "http://www.dmzx-web.net",
+			"email": "info@dmzx-web.net",
+			"role": "Extension Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4"
+	},
+	"require-dev": {
+		"phpbb/epv": "dev-master"
+	},
+	"extra": {
+		"display-name": "System Info",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.2.0,<3.3.*@dev"
+		},
+		"version-check": {
+			"host": "www.dmzx-web.net",
+			"directory": "/versions",
+			"filename": "systeminfo_32x_version.json"
+		}
+	}
+}
