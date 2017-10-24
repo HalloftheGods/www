@@ -69,7 +69,8 @@ class userlist
 		\phpbb\pagination $pagination,
 		\phpbb\controller\helper $helper,
 		$points_config_table,
-		$points_values_table)
+		$points_values_table
+	)
 	{
 		$this->functions_points 	= $functions_points;
 		$this->template 			= $template;
@@ -90,6 +91,8 @@ class userlist
 		{
 			trigger_error($this->user->lang['POINTS_LIST_DISABLE'], E_USER_NOTICE);
 		}
+
+		$this->functions_points->assign_authors();
 
 		// Get all values
 		$points_values = $this->functions_points->points_all_values();
@@ -126,6 +129,7 @@ class userlist
 		$this->template->assign_vars(array(
 			'TOTAL_ULTIMATEPOINTS_LIST'		=> ($ultimatepoints_total == 1) ? $this->user->lang['POINTS_LIST_USER'] : sprintf($this->user->lang['POINTS_LIST_USERS'], $ultimatepoints_total),
 			'POINTSLIST'					=> $this->config['points_name'],
+			'ULTIMATEPOINTS_FOOTER_VIEW'	=> true,
 		));
 
 		// Output the page

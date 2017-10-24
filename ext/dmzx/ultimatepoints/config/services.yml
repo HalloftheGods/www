@@ -1,24 +1,6 @@
 imports:
     - { resource: tables.yml }
-parameters:
-    ultimatepoints.version_data:
-        author: dmzx & posey
-        title: Ultimate Points
-        version: ultimate_points_version
-        file:
-            - www.dmzx-web.net
-            - /versions
-            - ultimatepoints_version.json
 services:
-    dmzx.ultimatepoints.version.check:
-        class: dmzx\ultimatepoints\includes\version_check
-        scope: prototype
-        arguments:
-            - '%ultimatepoints.version_data%'
-            - '@config'
-            - '@version_helper'
-            - '@template'
-            - '@user'
     dmzx.ultimatepoints.listener:
         class: dmzx\ultimatepoints\event\listener
         arguments:
@@ -91,32 +73,19 @@ services:
             - '@dbal.conn'
             - '@request'
             - '@config'
-            - '@controller.helper'
             - '@log'
-            - '@cache'
-            - '@service_container'
             - '%core.root_path%'
-            - '%core.adm_relative_path%'
             - '%core.php_ext%'
             - '%dmzx.ultimatepoints.table.points.config%'
             - '%dmzx.ultimatepoints.table.points.values%'
 
     dmzx.ultimatepoints.notification.type.points:
         class: dmzx\ultimatepoints\notification\points
-        scope: prototype # scope MUST be prototype for this to work!
-        arguments:
-            - '@user_loader'
-            - '@dbal.conn'
-            - '@cache.driver'
-            - '@user'
-            - '@auth'
-            - '@config'
-            - '@controller.helper'
-            - '%core.root_path%'
-            - '%core.php_ext%'
-            - '%tables.notification_types%'
-            - '%tables.notifications%'
-            - '%tables.user_notifications%'
+        shared: false # service MUST not be shared for this to work!
+        parent: notification.type.base
+        calls:
+            - [set_user_loader, ['@user_loader']]
+            - [set_helper, ['@controller.helper']]
         tags:
             - { name: notification.type }
 
@@ -132,7 +101,7 @@ services:
             - '@cache'
             - '@request'
             - '@config'
-            - '@pagination'
+            - '@ext.manager'
             - '%core.php_ext%'
             - '%core.root_path%'
             - '%dmzx.ultimatepoints.table.points.bank%'

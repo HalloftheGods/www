@@ -249,6 +249,7 @@ $lang = array_merge($lang, array(
 	'POINTS_TOTAL'						=> 'Total Cash on Hand: %1$s %2$s',
 	'POINTS_TRANSFER'					=> 'Transfer',
 	'POINTS_VIEWING'					=> 'Browsing points console',
+	'POINTS_TRANSFER_RECIEVED'			=> 'Donations received',
 
 	'ROBBERY_AMOUNT'					=> 'Amount',
 	'ROBBERY_AMOUNTLOSE'				=> 'If you are not successful, you will loose an additional <strong> %s percent</strong> of the value you wanted to rob!<br /><br />',
@@ -315,16 +316,8 @@ $lang = array_merge($lang, array(
 	'UP_ULTIMATE_POINTS_NAME_EXPLAIN'	=> 'With this extension you will give your users the possibility to collect and spend points. Click on the below actions to perform, what you like to do. Enabling <strong>Display Full Results</strong> is recommended.<br /><br />Have fun!',
 	'UP_UPDATE_SUCCESFUL'				=> 'The tables were updated successfully',
 
+	'ULTIMATEPOINTS_VERSION'			=> 'Version',
+
 	'WARN_USER_POINTS'					=> 'Additionally we deducted %1$s %2$s from your account!',
 	'WARN_MOD_POINTS'					=> 'Additionally %1$s %2$s has been deducted from %3$s’s account!',
-	'ULTIMATEPOINTS_VERSION_CHECK'		=> 'Ultimate Points Version Check',
-	'ULTIMATEPOINTS_AUTHOR'				=> 'Authors',
-	'ULTIMATEPOINTS_ANNOUNCEMENT_TOPIC'	=> 'Release Announcement',
-	'ULTIMATEPOINTS_CURRENT_VERSION'	=> 'Current Version',
-	'ULTIMATEPOINTS_DOWNLOAD_LATEST'	=> 'Download Latest Version',
-	'ULTIMATEPOINTS_DOWNLOAD'			=> 'Download',
-	'ULTIMATEPOINTS_LATEST_VERSION'		=> 'Latest Version',
-	'ULTIMATEPOINTS_NOT_UP_TO_DATE'		=> '%s is not up to date',
-	'ULTIMATEPOINTS_RELEASE_ANNOUNCEMENT' => 'Announcement Topic',
-	'ULTIMATEPOINTS_UP_TO_DATE'			=> '%s is up to date',
 ));

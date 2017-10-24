@@ -32,23 +32,14 @@ class admin_controller
 	/** @var \phpbb\config\config */
 	protected $config;
 
-	/** @var \phpbb\controller\helper */
-	protected $helper;
-
 	/** @var \phpbb\log\log */
 	protected $log;
-
-	/** @var \phpbb\cache\service */
-	protected $cache;
 
 	/** @var ContainerBuilder */
 	protected $phpbb_container;
 
 	/** @var string phpBB root path */
 	protected $root_path;
-
-	/** @var string phpBB admin path */
-	protected $phpbb_admin_path;
 
 	/** @var string php_ext */
 	protected $php_ext;
@@ -66,41 +57,34 @@ class admin_controller
 	/**
 	* Constructor
 	*
-	* @var \dmzx\ultimatepoints\core\functions_points
-	* @param \phpbb\template\template		 	$template
-	* @param \phpbb\user						$user
-	* @param \phpbb\auth\auth					$auth
-	* @param \phpbb\db\driver\driver_interface	$db
-	* @param \phpbb\request\request		 		$request
-	* @param \phpbb\config\config				$config
-	* @param \phpbb\controller\helper		 	$helper
-	* @param \phpbb\log\log					 	$log
-	* @param \phpbb\cache\service		 		$cache
-	* @param \Symfony\Component\DependencyInjection\ContainerInterface 	$phpbb_container
-	* @param string 							$root_path
-	* @param string 							$phpbb_admin_path
-	* @param string 							$php_ext
-	* @param string 							$points_config_table
-	* @param string 							$points_values_table
+	* @var \dmzx\ultimatepoints\core\functions_points	$functions_points
+	* @param \phpbb\template\template		 			$template
+	* @param \phpbb\user								$user
+	* @param \phpbb\auth\auth							$auth
+	* @param \phpbb\db\driver\driver_interface			$db
+	* @param \phpbb\request\request		 				$request
+	* @param \phpbb\config\config						$config
+	* @param \phpbb\log\log					 			$log
+	* @param string 									$root_path
+	* @param string 									$php_ext
+	* @param string 									$points_config_table
+	* @param string 									$points_values_table
 	*
 	*/
 	public function __construct(
-	\dmzx\ultimatepoints\core\functions_points $functions_points,
+		\dmzx\ultimatepoints\core\functions_points $functions_points,
 		\phpbb\template\template $template,
 		\phpbb\user $user,
 		\phpbb\auth\auth $auth,
 		\phpbb\db\driver\driver_interface $db,
 		\phpbb\request\request $request,
 		\phpbb\config\config $config,
-		\phpbb\controller\helper $helper,
 		\phpbb\log\log $log,
-		\phpbb\cache\service $cache,
-		$phpbb_container,
 		$root_path,
-		$phpbb_admin_path,
 		$php_ext,
 		$points_config_table,
-		$points_values_table)
+		$points_values_table
+	)
 	{
 		$this->functions_points 			= $functions_points;
 		$this->template 					= $template;
@@ -109,12 +93,8 @@ class admin_controller
 		$this->db 							= $db;
 		$this->request 						= $request;
 		$this->config 						= $config;
-		$this->helper 						= $helper;
 		$this->log 							= $log;
-		$this->cache 						= $cache;
-		$this->phpbb_container 				= $phpbb_container;
 		$this->root_path 					= $root_path;
-		$this->phpbb_admin_path 			= $phpbb_admin_path;
 		$this->php_ext 						= $php_ext;
 		$this->points_config_table 			= $points_config_table;
 		$this->points_values_table 			= $points_values_table;
@@ -125,8 +105,6 @@ class admin_controller
 		// Grab some vars
 		$action = $this->request->variable('action', '');
 		$id		= $this->request->variable('id', 0);
-
-		$this->version_check = $this->phpbb_container->get('dmzx.ultimatepoints.version.check');
 
 		// Get all configs
 		$points_config = $this->functions_points->points_all_configs();
@@ -278,6 +256,7 @@ class admin_controller
 				'NUMBER_SHOW_PER_PAGE'			=> $points_values['number_show_per_page'],
 				'TRANSFER_FEE'					=> $points_values['transfer_fee'],
 				'POINTS_ENABLE'					=> ($this->config['points_enable']) ? true : false,
+				'ULTIMATEPOINTS_VERSION'		=> $this->config['ultimate_points_version'],
 			));
 		}
 
@@ -528,7 +507,6 @@ class admin_controller
 			'S_POINTS_ACTIVATED'	=> ($this->config['points_enable']) ? true : false,
 			'U_ACTION'				=> $this->u_action)
 		);
-		$this->version_check->check();
 	}
 
 	public function display_lottery()

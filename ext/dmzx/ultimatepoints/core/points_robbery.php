@@ -86,7 +86,8 @@ class points_robbery
 		$root_path,
 		$points_config_table,
 		$points_values_table,
-		$points_log_table)
+		$points_log_table
+	)
 	{
 		$this->functions_points		= $functions_points;
 		$this->auth					= $auth;
